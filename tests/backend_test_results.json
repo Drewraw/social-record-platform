@@ -1,0 +1,74 @@
+{
+  "total_tests": 11,
+  "passed_tests": 11,
+  "failed_tests": 0,
+  "success_rate": "100.0%",
+  "results": [
+    {
+      "test": "Root Endpoint",
+      "passed": true,
+      "message": "Response: {'message': 'CiviCast API'}",
+      "response_data": null
+    },
+    {
+      "test": "Create Campaign",
+      "passed": true,
+      "message": "Campaign ID: 720ef21c-7ea4-4741-9a80-c9dd467fe860",
+      "response_data": null
+    },
+    {
+      "test": "Get All Campaigns",
+      "passed": true,
+      "message": "Found 1 campaigns",
+      "response_data": null
+    },
+    {
+      "test": "Get Campaign by ID",
+      "passed": true,
+      "message": "Retrieved campaign: Test Metro Project",
+      "response_data": null
+    },
+    {
+      "test": "Submit Vote - Confident",
+      "passed": true,
+      "message": "Vote submitted successfully",
+      "response_data": null
+    },
+    {
+      "test": "Submit Vote - Not Sure",
+      "passed": true,
+      "message": "Vote submitted successfully",
+      "response_data": null
+    },
+    {
+      "test": "Submit Vote - Not Confident",
+      "passed": true,
+      "message": "Vote submitted successfully",
+      "response_data": null
+    },
+    {
+      "test": "Get Vote Stats",
+      "passed": true,
+      "message": "Stats: Confident=1, NotSure=1, NotConfident=1, Total=3",
+      "response_data": null
+    },
+    {
+      "test": "Create Community Report (Text Only)",
+      "passed": true,
+      "message": "Report ID: 4cd535c2-279f-49b4-8662-573c72cdc47a",
+      "response_data": null
+    },
+    {
+      "test": "Get Community Reports",
+      "passed": true,
+      "message": "Found 1 reports",
+      "response_data": null
+    },
+    {
+      "test": "Get Progress Updates",
+      "passed": true,
+      "message": "Found 0 updates",
+      "response_data": null
+    }
+  ]
+}
