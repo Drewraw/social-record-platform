@@ -69,8 +69,8 @@ const Home = () => {
           </div>
         ) : campaigns.length === 0 ? (
           <div className="glass-card p-12 text-center fade-in">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center mx-auto mb-6">
-              <TrendingUp className="w-10 h-10 text-purple-600" />
+            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-6">
+              <TrendingUp className="w-10 h-10 text-blue-600" />
             </div>
             <h2 className="text-2xl font-bold mb-3 text-gray-800">No Campaigns Yet</h2>
             <p className="text-gray-600 mb-6">Be the first to create a campaign and track government promises!</p>
@@ -78,7 +78,7 @@ const Home = () => {
               data-testid="first-campaign-btn"
               onClick={() => setShowCreateModal(true)}
               className="btn-primary"
-              style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+              style={{ background: '#007bff' }}
             >
               <Plus className="w-5 h-5 inline mr-2" />
               Create First Campaign
