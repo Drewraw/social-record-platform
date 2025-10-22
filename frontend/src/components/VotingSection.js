@@ -38,7 +38,7 @@ const VotingSection = ({ campaignId, voteStats, onVoteSubmit }) => {
 
   return (
     <div data-testid="voting-section" className="space-y-4">
-      <h3 className="text-lg font-bold text-gray-800 mb-4">Public Sentiment</h3>
+      <h3 className="text-lg font-bold text-gray-900 mb-4">Public Sentiment</h3>
 
       {/* Confident */}
       <button
@@ -48,10 +48,10 @@ const VotingSection = ({ campaignId, voteStats, onVoteSubmit }) => {
         className="vote-btn vote-confident w-full text-left flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+          <div className="w-3 h-3 rounded-full bg-white"></div>
           <span className="font-semibold">Confident</span>
         </div>
-        <span className="text-2xl font-bold">{calculatePercentage(voteStats.confident)}%</span>
+        <span className="text-3xl font-bold">{calculatePercentage(voteStats.confident)}%</span>
       </button>
 
       {/* Not Sure */}
@@ -62,10 +62,10 @@ const VotingSection = ({ campaignId, voteStats, onVoteSubmit }) => {
         className="vote-btn vote-not-sure w-full text-left flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+          <div className="w-3 h-3 rounded-full bg-gray-800"></div>
           <span className="font-semibold">Not sure</span>
         </div>
-        <span className="text-2xl font-bold">{calculatePercentage(voteStats.notSure)}%</span>
+        <span className="text-3xl font-bold">{calculatePercentage(voteStats.notSure)}%</span>
       </button>
 
       {/* Not Confident */}
@@ -76,10 +76,10 @@ const VotingSection = ({ campaignId, voteStats, onVoteSubmit }) => {
         className="vote-btn vote-not-confident w-full text-left flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="w-4 h-4 rounded-full bg-red-500"></div>
+          <div className="w-3 h-3 rounded-full bg-white"></div>
           <span className="font-semibold">Not confident</span>
         </div>
-        <span className="text-2xl font-bold">{calculatePercentage(voteStats.notConfident)}%</span>
+        <span className="text-3xl font-bold">{calculatePercentage(voteStats.notConfident)}%</span>
       </button>
 
       {hasVoted && (
