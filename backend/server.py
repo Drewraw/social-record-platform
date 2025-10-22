@@ -48,6 +48,7 @@ class Campaign(BaseModel):
     title: str
     promise: str
     source: str
+    sourceImageUrl: Optional[str] = None
     recordedDate: str
     question: str
     createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
