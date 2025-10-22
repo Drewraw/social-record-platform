@@ -180,6 +180,45 @@ const CreateCampaignModal = ({ open, onClose, onSuccess }) => {
           </div>
 
           <div>
+            <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+              Source Evidence (Screenshot/Photo) - Optional
+            </Label>
+            {!imagePreview ? (
+              <label
+                htmlFor="source-image-upload"
+                className="flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 transition-colors"
+              >
+                <Upload className="w-5 h-5 text-gray-500" />
+                <span className="text-gray-600">Upload screenshot or photo of source</span>
+                <input
+                  id="source-image-upload"
+                  data-testid="source-image-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+            ) : (
+              <div className="relative rounded-xl overflow-hidden">
+                <img
+                  src={imagePreview}
+                  alt="Source preview"
+                  className="w-full h-48 object-cover"
+                />
+                <button
+                  type="button"
+                  data-testid="remove-source-image-btn"
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div>
             <Label htmlFor="question" className="text-sm font-semibold text-gray-700 mb-2 block">
               Central Question *
             </Label>
