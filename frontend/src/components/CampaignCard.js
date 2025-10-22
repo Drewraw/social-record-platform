@@ -8,23 +8,23 @@ const CampaignCard = ({ campaign }) => {
   return (
     <div
       data-testid={`campaign-card-${campaign.id}`}
-      className="glass-card p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+      className="glass-card p-6 hover:shadow-xl transition-all duration-300 cursor-pointer group"
       onClick={() => navigate(`/campaign/${campaign.id}`)}
     >
       {/* Icon & Title */}
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
           <TrendingUp className="w-6 h-6 text-white" />
         </div>
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-800 group-hover:text-purple-600 transition-colors line-clamp-2">
+          <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
             {campaign.title}
           </h3>
         </div>
       </div>
 
       {/* Promise */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl mb-4 border-l-4 border-purple-400">
+      <div className="bg-blue-50 p-4 rounded-lg mb-4 border-l-4 border-blue-600">
         <p className="text-sm text-gray-700 line-clamp-3">{campaign.promise}</p>
       </div>
 
