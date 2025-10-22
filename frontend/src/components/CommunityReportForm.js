@@ -71,8 +71,8 @@ const CommunityReportForm = ({ campaignId, onSuccess }) => {
   };
 
   return (
-    <div data-testid="community-report-form" className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-xl mb-6 border-2 border-purple-200">
-      <h3 className="text-lg font-bold text-gray-800 mb-4">Share Your Update</h3>
+    <div data-testid="community-report-form" className="bg-blue-50 p-6 rounded-lg mb-6 border border-blue-200">
+      <h3 className="text-lg font-bold text-gray-900 mb-4">Share Your Update</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="author" className="text-sm font-semibold text-gray-700 mb-2 block">
@@ -84,7 +84,7 @@ const CommunityReportForm = ({ campaignId, onSuccess }) => {
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
             placeholder="Enter your name or stay anonymous"
-            className="w-full px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:outline-none transition-colors"
           />
         </div>
 
@@ -100,7 +100,7 @@ const CommunityReportForm = ({ campaignId, onSuccess }) => {
             placeholder="Share what you've observed about this campaign's progress..."
             required
             rows={4}
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:outline-none transition-colors"
           />
         </div>
 
@@ -111,7 +111,7 @@ const CommunityReportForm = ({ campaignId, onSuccess }) => {
           {!imagePreview ? (
             <label
               htmlFor="image-upload"
-              className="flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-purple-500 transition-colors"
+              className="flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors"
             >
               <Upload className="w-5 h-5 text-gray-500" />
               <span className="text-gray-600">Click to upload image</span>
@@ -125,7 +125,7 @@ const CommunityReportForm = ({ campaignId, onSuccess }) => {
               />
             </label>
           ) : (
-            <div className="relative rounded-xl overflow-hidden">
+            <div className="relative rounded-lg overflow-hidden">
               <img
                 src={imagePreview}
                 alt="Preview"
@@ -148,7 +148,7 @@ const CommunityReportForm = ({ campaignId, onSuccess }) => {
           data-testid="submit-report-btn"
           disabled={submitting}
           className="w-full btn-primary"
-          style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+          style={{ background: '#007bff' }}
         >
           {submitting ? "Submitting..." : "Submit Update"}
         </Button>
