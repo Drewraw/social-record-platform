@@ -173,7 +173,7 @@ const CreateCampaignModal = ({ open, onClose, onSuccess }) => {
               data-testid="submit-campaign-btn"
               disabled={submitting}
               className="flex-1 btn-primary"
-              style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+              style={{ background: '#007bff' }}
             >
               {submitting ? "Creating..." : "Create Campaign"}
             </Button>
