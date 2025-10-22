@@ -88,6 +88,20 @@ const CampaignDetail = () => {
                   Recorded {new Date(campaign.recordedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} | {campaign.source}
                 </p>
               </div>
+              
+              {/* Source Image */}
+              {campaign.sourceImageUrl && (
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Source Evidence:</p>
+                  <div className="rounded-lg overflow-hidden border border-gray-200">
+                    <img
+                      src={`${BACKEND_URL}${campaign.sourceImageUrl}`}
+                      alt="Source evidence"
+                      className="w-full h-64 object-cover"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Question */}
