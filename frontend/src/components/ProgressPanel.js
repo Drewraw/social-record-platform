@@ -168,9 +168,23 @@ const ProgressPanel = ({ campaignId }) => {
         <div className="space-y-6">
           {/* Progress Updates */}
           {updates.length > 0 && (
-            <div>
-              <h3 className="text-lg font-bold text-gray-800 mb-4">Official Updates</h3>
-              {updates.map(renderUpdate)}
+            <div className="bg-blue-50 p-4 rounded-lg mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Clock className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-bold text-gray-900">Mid-term Verification</h3>
+              </div>
+              {updates.map(update => (
+                <div key={update.id} className="mb-3">
+                  <p className="text-sm text-gray-600 mb-2">{formatDate(update.createdAt)}</p>
+                  <p className="text-gray-800">{update.content}</p>
+                  {update.verificationStatus === 'Verified' && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-semibold text-green-700">Verified by CiviCast Mods</span>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
 
