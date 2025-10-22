@@ -59,7 +59,7 @@ const CampaignDetail = () => {
   }
 
   return (
-    <div className="min-h-screen p-4" style={{ background: 'linear-gradient(135deg, #fef9f3 0%, #fef0e8 50%, #f0f4ff 100%)' }}>
+    <div className="min-h-screen p-4" style={{ background: '#f5f5f5' }}>
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
         <Button
@@ -81,19 +81,19 @@ const CampaignDetail = () => {
           >
             {/* Campaign Header */}
             <div className="mb-6">
-              <h1 className="text-4xl font-bold mb-4 text-gray-800">{campaign.title}</h1>
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border-l-4 border-purple-500 mb-4">
-                <p className="text-gray-700 font-medium mb-2">{campaign.promise}</p>
-                <p className="text-sm text-gray-500">
+              <h1 className="text-4xl font-bold mb-4 text-gray-900">{campaign.title}</h1>
+              <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-600 mb-4">
+                <p className="text-gray-800 font-medium mb-2">{campaign.promise}</p>
+                <p className="text-sm text-gray-600">
                   Recorded {new Date(campaign.recordedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} | {campaign.source}
                 </p>
               </div>
             </div>
 
             {/* Question */}
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl mb-6 border-l-4 border-amber-400">
+            <div className="bg-gray-50 p-6 rounded-lg mb-6">
               <h3 className="text-sm font-semibold text-gray-600 mb-2">CAMPAIGN CENTERED ON</h3>
-              <p className="text-lg font-semibold text-gray-800">{campaign.question}</p>
+              <p className="text-lg font-semibold text-gray-900">{campaign.question}</p>
             </div>
 
             {/* Voting Section */}
