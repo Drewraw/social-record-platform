@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { X } from "lucide-react";
+import { X, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +18,8 @@ const CreateCampaignModal = ({ open, onClose, onSuccess }) => {
     recordedDate: "",
     question: ""
   });
+  const [sourceImage, setSourceImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
@@ -27,12 +29,45 @@ const CreateCampaignModal = ({ open, onClose, onSuccess }) => {
     });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSourceImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSourceImage(null);
+    setImagePreview(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
-      await axios.post(`${API}/campaigns`, formData);
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('promise', formData.promise);
+      formDataToSend.append('source', formData.source);
+      formDataToSend.append('recordedDate', formData.recordedDate);
+      formDataToSend.append('question', formData.question);
+      
+      if (sourceImage) {
+        formDataToSend.append('sourceImage', sourceImage);
+      }
+
+      await axios.post(`${API}/campaigns`, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
       toast.success("Campaign created successfully!");
       setFormData({
         title: "",
@@ -41,6 +76,8 @@ const CreateCampaignModal = ({ open, onClose, onSuccess }) => {
         recordedDate: "",
         question: ""
       });
+      setSourceImage(null);
+      setImagePreview(null);
       onSuccess();
     } catch (error) {
       console.error("Error creating campaign:", error);
