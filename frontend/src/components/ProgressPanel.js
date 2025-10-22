@@ -107,11 +107,11 @@ const ProgressPanel = ({ campaignId }) => {
       >
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
               {report.author[0] || 'A'}
             </div>
             <div>
-              <p className="font-semibold text-gray-800">{report.author}</p>
+              <p className="font-semibold text-gray-900">{report.author}</p>
               <p className="text-sm text-gray-500">{formatDate(report.createdAt)}</p>
             </div>
           </div>
@@ -137,7 +137,7 @@ const ProgressPanel = ({ campaignId }) => {
         <p className="text-gray-700 mb-3">{report.content}</p>
 
         {report.imageUrl && (
-          <div className="mt-3 rounded-xl overflow-hidden">
+          <div className="mt-3 rounded-lg overflow-hidden">
             <img
               src={`${BACKEND_URL}${report.imageUrl}`}
               alt="Community report"
