@@ -97,8 +97,33 @@ class CommunityReport(BaseModel):
 # ============ Campaign Routes ============
 
 @api_router.post("/campaigns", response_model=Campaign)
-async def create_campaign(campaign: CampaignCreate):
-    campaign_obj = Campaign(**campaign.model_dump())
+async def create_campaign(
+    title: str = Form(...),
+    promise: str = Form(...),
+    source: str = Form(...),
+    recordedDate: str = Form(...),
+    question: str = Form(...),
+    sourceImage: Optional[UploadFile] = File(None)
+):
+    campaign_obj = Campaign(
+        title=title,
+        promise=promise,
+        source=source,
+        recordedDate=recordedDate,
+        question=question
+    )
+    
+    # Handle source image upload
+    if sourceImage:
+        file_ext = sourceImage.filename.split('.')[-1]
+        file_name = f"source_{campaign_obj.id}.{file_ext}"
+        file_path = UPLOADS_DIR / file_name
+        
+        with file_path.open('wb') as buffer:
+            shutil.copyfileobj(sourceImage.file, buffer)
+        
+        campaign_obj.sourceImageUrl = f"/uploads/{file_name}"
+    
     doc = campaign_obj.model_dump()
     doc['createdAt'] = doc['createdAt'].isoformat()
     await db.campaigns.insert_one(doc)
