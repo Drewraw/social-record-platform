@@ -115,11 +115,9 @@ const CampaignDetail = () => {
             <Button
               data-testid="toggle-progress-btn"
               onClick={() => setShowProgress(!showProgress)}
-              className="w-full mt-6 py-4 text-lg font-semibold rounded-xl transition-all"
+              className="w-full mt-6 py-4 text-lg font-semibold rounded-lg transition-all"
               style={{
-                background: showProgress
-                  ? 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)'
-                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: showProgress ? '#6c757d' : '#007bff',
                 color: 'white'
               }}
             >
