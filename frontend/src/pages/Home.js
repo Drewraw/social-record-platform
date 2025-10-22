@@ -36,16 +36,16 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #fef9f3 0%, #fef0e8 50%, #f0f4ff 100%)' }}>
+    <div className="min-h-screen" style={{ background: '#f5f5f5' }}>
       {/* Header */}
       <header className="glass-card mx-4 mt-4 px-6 py-5">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>CiviCast</h1>
+              <h1 className="text-3xl font-bold text-gray-900">CiviCast</h1>
               <p className="text-sm text-gray-600">Track Government Promises & Progress</p>
             </div>
           </div>
@@ -53,7 +53,7 @@ const Home = () => {
             data-testid="create-campaign-btn"
             onClick={() => setShowCreateModal(true)}
             className="btn-primary flex items-center gap-2"
-            style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+            style={{ background: '#007bff' }}
           >
             <Plus className="w-5 h-5" />
             Create Campaign
