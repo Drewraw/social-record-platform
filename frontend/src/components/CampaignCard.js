@@ -44,7 +44,7 @@ const CampaignCard = ({ campaign }) => {
       <Button
         data-testid={`view-campaign-btn-${campaign.id}`}
         className="w-full btn-primary"
-        style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+        style={{ background: '#007bff' }}
         onClick={(e) => {
           e.stopPropagation();
           navigate(`/campaign/${campaign.id}`);
