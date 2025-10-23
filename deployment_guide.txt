@@ -1,0 +1,33 @@
+# Render Deployment Guide for Social Record Platform
+
+## Repository Structure
+- Backend: /server (Express.js with PostgreSQL + Redis)
+- Frontend: /frontend (React.js)
+
+## Backend (Web Service)
+- Root Directory: server
+- Build Command: npm install
+- Start Command: npm start
+- Environment Variables:
+  - PORT=10000
+  - POSTGRESS_URL (Render PostgreSQL Internal URL)
+  - REDIS_URL (Render Redis Internal URL)
+  - JWT_TOKEN (Secret Key)
+- Type: Web Service
+
+## Frontend (Static Site)
+- Root Directory: frontend
+- Build Command: npm install && npm run build
+- Publish Directory: build
+- Environment Variables:
+  - REACT_APP_API_URL=https://social-record-backend.onrender.com
+- Type: Static Site
+
+## Postgres and Redis Setup
+- Use Render's PostgreSQL and Redis services.
+- Connect their Internal URLs to backend environment variables.
+
+## Notes
+- .env.example is included for local development (do not commit .env).
+- PORT=10000 is Render's internal default and should not be changed.
+- React frontend uses REACT_APP_API_URL to communicate with backend.
