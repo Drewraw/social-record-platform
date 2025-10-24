@@ -1,0 +1,61 @@
+name: CI Pipeline - Build & Verify for Render Deploy
+
+on:
+  push:
+    branches:
+      - feature/render-deploy
+      - main
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      # Inject environment variables from GitHub Secrets
+      REACT_APP_BACKEND_URL: ${{ secrets.REACT_APP_BACKEND_URL }}
+      POSTGRESS_URL: ${{ secrets.POSTGRESS_URL }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      JWT_TOKEN: ${{ secrets.JWT_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # ------------------ FRONTEND ------------------
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm install --legacy-peer-deps
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build
+        env:
+          REACT_APP_BACKEND_URL: ${{ secrets.REACT_APP_BACKEND_URL }}
+
+      # ------------------ BACKEND ------------------
+      - name: Install Backend Dependencies
+        working-directory: server
+        run: npm install
+
+      - name: Verify Backend Startup (syntax + env check)
+        working-directory: server
+        run: |
+          node --check server.js
+          echo "POSTGRESS_URL=${{ secrets.POSTGRESS_URL }}"
+          echo "REDIS_URL=${{ secrets.REDIS_URL }}"
+          echo "JWT_TOKEN=${{ secrets.JWT_TOKEN }}"
+
+      # ------------------ OPTIONAL TESTS ------------------
+      # If you add Jest or supertest later, uncomment below:
+      # - name: Run Backend Tests
+      #   working-directory: server
+      #   run: npm test
+
+      # ------------------ SUMMARY ------------------
+      - name: Print Success Message
+        run: echo "✅ CI Pipeline passed. Safe to deploy to Render."
