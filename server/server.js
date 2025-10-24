@@ -7,7 +7,12 @@ import jwt from "jsonwebtoken";
 
 dotenv.config();
 const app = express();
-app.use(cors());
+const allowedOrigins = ['https://social-record-frontend.onrender.com'];
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // PostgreSQL connection
