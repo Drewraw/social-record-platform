@@ -1,0 +1,47 @@
+name: CI Pipeline - Build & Test
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install --legacy-peer-deps
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Install Backend Dependencies
+        run: |
+          cd server
+          npm install
+
+      # Optional: backend test command if you add tests later
+      - name: Verify Backend Server (syntax only)
+        run: |
+          cd server
+          node --check server.js
+
+      - name: Check Environment Variables
+        run: |
+          echo "Frontend URL: ${{ secrets.REACT_APP_BACKEND_URL }}"
+          echo "Backend URL: ${{ secrets.POSTGRESS_URL }}"
