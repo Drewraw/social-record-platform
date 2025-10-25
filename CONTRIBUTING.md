@@ -54,9 +54,13 @@
 The **Social Record Platform** is being developed in two major phases — **Phase 1** and **Phase 2** — both of which may progress **in parallel**. Phase 1 focuses on building the foundation (profiles and data aggregation), while Phase 2 builds on top of that foundation to enable civic discussions forums, and measure accountability towards
 
 ### Current Development Phases
+Phase One (Prototype)
+Branch: [phaseone]--https://github.com/Drewraw/social-record-platform/tree/phase-one Preview: https://claude.ai/public/artifacts/d012c4c8-5c74-4965-aeee-b2245f304bf6
+Description: First MVP showcasing the core app layout and logic.
 
-- **Phase One** → Initial prototype branch-“Profiles Foundation" (branch: phase-one)
-- **Phase Two** → Debug and extended feature branch- “Campaign & Interaction Layer” (branch: `feature/phase2-debug`)
+Phase Two (Debug Build)
+Branch: [feature/phase2-debug]--https://github.com/Drewraw/social-record-platform/tree/feature/phase-2-debug Preview: https://claude.ai/public/artifacts/c7871b72-2a71-4fa7-b2f6-1d83925ab4a3
+Description: Second MVP with debugging, performance tweaks, and new modules.
 ---
 
 ### 🧩 **Phase 1 — “Profiles Foundation” (branch: `phase-one`)
