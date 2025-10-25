@@ -47,7 +47,6 @@ Roles help us keep contributions clear, reviewed, and fair.
 4. After approval, **Maintainers** merge into the main branch.  
 
 ---
-
 ## 💬 Community Roles
 
 | **Role** | **Example Activity** |
@@ -58,7 +57,6 @@ Roles help us keep contributions clear, reviewed, and fair.
 | Sponsor | Fund specific features or host community events |
 
 ---
-
 ## ❤️ Path to Growth
 
 | Start As | Grow Into | How |
@@ -67,7 +65,10 @@ Roles help us keep contributions clear, reviewed, and fair.
 | Reviewer | Maintainer | Owns module, participates in 3+ releases |
 | Advocate | Core Team Member | Active in community & outreach |
 
----
+-- ****Note:***** 
+
+> The team handles shown below (like `@frontend-team`, `@backend-team`) are **placeholders** for future contributor groups.  
+> Currently, all modules are owned and reviewed by **@Drewraw** until new maintainers join.
 
 Maintainers reserve the right to make final decisions on merges and releases, but everyone’s input is welcome.  
 We’re building this platform **together** — one transparent, accountable contribution at a time. ✨
