@@ -45,7 +45,7 @@
 
 ## 💡 Core Message
 
-> The platform is **a civic technology forum** that powers open governance by connecting issues, officials, and verified data — enabling citizens to not just discuss, but also **measure change**.
+> The platform is **a civic open governance technology forum** that powers open governance by connecting issues, officials, and verified data — enabling citizens to not just discuss, but also **measure change**.
 
 ---
 
@@ -86,6 +86,8 @@ Fetch and consolidate data from trusted sources like:
 
 * For each MLA/MP: show photo, bio, constituency, party, term history, and data source links.
 * Each profile acts as a **central node** connecting to future campaigns, promises, and discussions.
+ 
+TECH stack- MERN
 
 **Database Storage:**
 
