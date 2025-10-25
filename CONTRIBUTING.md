@@ -59,9 +59,9 @@ Branch: [phaseone]--https://github.com/Drewraw/social-record-platform/tree/phase
 Description: First MVP showcasing the core app layout and logic.
 
 Phase Two (Debug Build)
-Branch: [feature/phase2-debug]--https://github.com/Drewraw/social-record-platform/tree/feature/phase-2-debug Preview: https://claude.ai/public/artifacts/c7871b72-2a71-4fa7-b2f6-1d83925ab4a3
+Branch: [feature/phase2-debug]--https://github.com/Drewraw/social-record-platform/tree/feature/phase-2-debug 
 Description: Second MVP with debugging, performance tweaks, and new modules.
----
+preview : https://claude.ai/public/artifacts/c7871b72-2a71-4fa7-b2f6-1d83925ab4a3
 
 ### 🧩 **Phase 1 — “Profiles Foundation” (branch: `phase-one`)
 
