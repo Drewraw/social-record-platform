@@ -115,7 +115,7 @@ git checkout phase-one
 
 #### 🎯 Objective
 
-Enable **public campaign creation, discussion, and tracking** using verified official profiles as anchors.
+Enable **public forum creation, discussion, and tracking** using verified official profiles as anchors.
 
 #### ⚙️ Core Features
 
@@ -130,11 +130,11 @@ Enable **public campaign creation, discussion, and tracking** using verified off
 
 **Admin Dashboard Expansion:**
 
-* Manage campaigns, tags (issues, policies), and performance metrics.
+* Manage forumns, tags (issues, policies), and performance metrics.
 
 **Community Discussion Threads:**
 
-* Each campaign has a dedicated discussion space (like GitHub Discussions threads) for updates and feedback.
+* Each forumn has a dedicated discussion space (like GitHub Discussions threads) for updates and feedback.
 
 **Insights Engine:**
 
