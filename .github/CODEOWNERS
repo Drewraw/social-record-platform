@@ -1,0 +1,37 @@
+# 🧭 CODEOWNERS — Social Record Platform
+# This file tells GitHub who automatically reviews pull requests
+# and who owns specific parts of the codebase.
+# Each line maps a file path to one or more GitHub usernames or teams.
+
+# -------------------------------------------------------------
+# 🧑‍💼 Global maintainer (you)
+# -------------------------------------------------------------
+* @Drewraw
+
+# -------------------------------------------------------------
+# 🧩 Frontend ownership (React UI, components, pages)
+# -------------------------------------------------------------
+/frontend/ @Drewraw
+/frontend/src/ @Drewraw
+
+# -------------------------------------------------------------
+# ⚙️ Backend ownership (Node.js, API, server logic)
+/server/ @Drewraw
+/server/routes/ @Drewraw
+/server/models/ @Drewraw
+
+# -------------------------------------------------------------
+# 🧱 DevOps / Infrastructure / CI-CD
+/.github/ @Drewraw
+/deployment_guide.txt @Drewraw
+
+# -------------------------------------------------------------
+# 📚 Docs, Governance, Community files
+/README.md @Drewraw
+/LABELS.md @Drewraw
+/ROLES.md @Drewraw
+/GOVERNANCE.md @Drewraw
+/SECURITY.md @Drewraw
+/CONTRIBUTING.md @Drewraw
+/CODE_OF_CONDUCT.md @Drewraw
+/LICENSE @Drewraw
