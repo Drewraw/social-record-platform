@@ -14,6 +14,8 @@ Branch: [`feature/phase2-debug`]--https://github.com/Drewraw/social-record-platf
 Preview: [Claude Artifact](https://claude.ai/public/artifacts/c7871b72-2a71-4fa7-b2f6-1d83925ab4a3)  
 Description: Second MVP with debugging, performance tweaks, and new modules.
 
+👉 See our [How We Use Labels Guide](./LABELS.md)
+
 ### 👥 Roles in the Project
 
 Everyone in our open-source community plays an important part.  
