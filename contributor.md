@@ -10,7 +10,7 @@
 
 ## 🌍 How It Differs From Media Platforms
 
-| Media Company             | Social Record Platform                                  |
+| Media Company             | Social Record Platform (open governance civic forum)                                 |
 | ------------------------- | ------------------------------------------------------- |
 | Publishes news or stories | Records, links, and analyzes governance data            |
 | Operates privately        | Functions as an open-source civic utility               |
@@ -51,8 +51,12 @@
 
 ## ⚙️ Summary of Platform Roadmap
 
-The **Social Record Platform** is being developed in two major phases — **Phase 1** and **Phase 2** — both of which may progress **in parallel**. Phase 1 focuses on building the foundation (profiles and data aggregation), while Phase 2 builds on top of that foundation to enable civic campaigns, discussions, and accountability tracking.
+The **Social Record Platform** is being developed in two major phases — **Phase 1** and **Phase 2** — both of which may progress **in parallel**. Phase 1 focuses on building the foundation (profiles and data aggregation), while Phase 2 builds on top of that foundation to enable civic discussions forums, and measure accountability towards
 
+### Current Development Phases
+
+- **Phase One** → Initial prototype branch-“Profiles Foundation" (branch: phase-one)
+- **Phase Two** → Debug and extended feature branch- “Campaign & Interaction Layer” (branch: `feature/phase2-debug`)
 ---
 
 ### 🧩 **Phase 1 — “Profiles Foundation” (branch: `phase-one`)
@@ -101,7 +105,6 @@ git checkout phase-one
 ```
 
 ---
-
 ### 🚀 **Phase 2 — “Campaign & Interaction Layer” (branch: `feature/phase2-debug`)
 
 > Build on top of the Phase 1 data foundation — enabling users, moderators, and the platform itself to create **issue-based campaigns** linked to officials and departments.
