@@ -14,9 +14,25 @@ Branch: [`feature/phase2-debug`]--https://github.com/Drewraw/social-record-platf
 Preview: [Claude Artifact](https://claude.ai/public/artifacts/c7871b72-2a71-4fa7-b2f6-1d83925ab4a3)  
 Description: Second MVP with debugging, performance tweaks, and new modules.
 
+### 👥 Roles in the Project
+
+Everyone in our open-source community plays an important part.  
+See our [Roles Guide](./ROLES.md) to understand responsibilities, ownership, and how to grow from contributor → maintainer.
+
+| Role | Description |
+|------|--------------|
+| **Maintainers** | Approve merges, releases, and guide project direction. |
+| **Reviewers** | Review code in assigned modules (frontend, backend, etc.). |
+| **Contributors** | Submit pull requests for code, docs, or design. |
+| **Docs & Design** | Improve UI, documentation, or user experience. |
+| **Triagers** | Label and organize issues. |
+| **Advocates** | Share and promote the platform in the community. |
+
+
 ## 📘 Project Resources
 - [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 - [Labels Guide](./LABELS.md)
 - [Security Policy](./SECURITY.md)
 - [License](./LICENSE)
+  
