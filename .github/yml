@@ -1,0 +1,24 @@
+- name: area:frontend
+  color: 36b37e
+  description: Issues related to frontend UI and React components
+- name: area:backend
+  color: 0052cc
+  description: Issues related to backend APIs, database, or Node.js logic
+- name: area:docs
+  color: ffc107
+  description: Documentation or content updates
+- name: area:devops
+  color: 5319e7
+  description: DevOps, CI/CD, Render, or GitHub workflow setup
+- name: good-first-issue
+  color: 7057ff
+  description: Simple issues suitable for newcomers
+- name: help-wanted
+  color: d93f0b
+  description: Issues that need help from community
+- name: phase1
+  color: 1a7f37
+  description: Related to Phase One MVP
+- name: phase2
+  color: 0e8a16
+  description: Related to Phase Two MVP
