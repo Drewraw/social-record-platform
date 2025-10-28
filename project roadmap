@@ -1,0 +1,131 @@
+Please go through master branch READ.me file and contributing.md file for better understanding
+
+# 🏛️ Open Governance Forum (Phase 1)
+> *Empowering citizens with open data, AI insights, and transparency.*
+
+The **Open Governance Forum** is an **AI-powered open-governance platform** that turns verified political data into transparent, AI-driven insights.
+
+Citizens can:
+- 🧾 **View verified political profiles** with transparent scorecards  
+- 📊 **Explore dashboards** showing promises, performance, and background verification (BGV)   
+- 🧠 **Ask questions to our Gemini-powered RAG Assistant**, such as:  
+  - “Who performed better in Andhra Pradesh between 2019–2024?”  
+
+
+Our goal is to make governance data **open, explainable,comparable  and accessible**,to users  supported by real-time AI insights.
+
+---
+
+## 🧱 Platform Overview (Phase 1)
+
+| Layer | Description |
+|:--|:--|
+| **Data Collection (Python)** | Scrapes verified data from [MyNeta.info](https://myneta.info) |
+| **Database (PostgreSQL)** | Stores political, regional, and performance data |
+| **AI Engine (Gemini RAG)** | Combines vector search + Gemini API for factual responses |
+| **Frontend Dashboard** | Displays scorecards and comparisons |
+| **AI Assistant** | Built with LangChain + Gemini for retrieval-augmented insights |
+
+---
+
+## 💬 Example User Flow
+
+1️⃣ **Search**  
+User searches for their **politician or constituency**.
+
+2️⃣ **View Dashboard**  
+The platform displays a **profile dashboard** showing:
+- Education, assets, criminal cases, party, and election year  
+- Background verification data and performance metrics  
+
+3️⃣ **Analyze with AI (Gemini RAG Assistant)**  
+Users can **compare, question, and analyze** politicians and parties directly through the **Gemini-powered RAG system**.
+
+**Under the hood 👇**
+
+- 🔍 **Retrieval:** Fetches verified data from **PostgreSQL + vector DB** (FAISS/Chroma).  
+- 🧩 **Context Building:** Combines MyNeta data, party manifestos, and performance history.  
+- ⚖️ **AI Comparison (Gemini Reasoning):** Gemini evaluates metrics like:  
+  - Promise fulfillment rate  
+  - Project completion rate  
+  - Transparency and clean record score  
+  - Education and attendance rate  
+- 🧠 **Simplified AI Response:**  
+  > “Between 2019–2024, Candidate A fulfilled 80 % of rural welfare promises, while Candidate B completed 50 %, focusing on infrastructure.”  
+- 🗣️ **Interactive Queries:**  
+  Users can continue asking:  
+  - “Show me data sources for that.”  
+  - “Compare this with the last election.”  
+  
+
+This step unifies **comparison and reasoning**, turning raw data into civic insight through **AI + verified evidence**.
+
+---
+
+## ⚙️ Key Python Scripts
+
+| File/Folder | Purpose |
+|:--|:--|
+| `myneta-scraper/` | Scrape data from [MyNeta.info](https://myneta.info) |
+| `unified_enrichment.py` | Update DB to recent election data |
+| `verify.py` | Validate DB integrity |
+| `autoschedular.py` | Automate periodic DB updates |
+| `data/myneta/` | Contains raw data for ingestion |
+
+---
+
+## 🚧 Current Roadblocks (Phase 1)
+
+### 🕵️‍♂️ 1️⃣ Python Scraper Reliability  
+- **Problem:** Manual or partial scraping is not scalable.  
+- **Issue:** HTML structure changes break existing scripts.  
+- **Need:** Playwright / BeautifulSoup scrapers with retry, async, and error handling.
+
+---
+
+### 🧩 2️⃣ Database Refresh & Consistency  
+- **Problem:** PostgreSQL sometimes doesn’t refresh after enrichment.  
+- **Need:** Use SQLAlchemy ORM, add transaction safety (commit/rollback), and build validation steps.
+
+---
+
+### 🧠 3️⃣ Gemini RAG Assistant — **Not Working Properly*
+*  *****************************************************************
+- **Problem:** The RAG assistant is **not able to fetch or use data from the database**.  
+- **Cause:** The link between **PostgreSQL / vector store** and **Gemini** is incomplete or failing.  
+- **Effect:** Gemini gives generic answers or misses live DB data.  
+- **Help Needed:**  
+  - Fix DB connection and retrieval pipeline in LangChain.  
+  - Debug embedding generation and vector search.  
+  - Ensure Gemini gets structured context from DB before generating responses.  
+  - Simplify responses once retrieval works.
+
+---
+
+## 🧭 Contributor Opportunities
+
+| Area | Needs Help | Skillset |
+|:--|:--|:--|
+| 🧹 Scraping | Robust MyNeta scraper | Python / Playwright / BS4 |
+| 🧱 Database | Optimize sync & refresh | PostgreSQL / SQLAlchemy |
+| 🧠 Gemini RAG | Fix DB link & reasoning | LangChain / Gemini API |
+| ⚡ Automation | Scheduling & validation | Python / Cron |
+| 📊 Frontend | Dashboards & comparisons | React / Tailwind |
+
+---
+
+## 🧰 Tech Stack
+- **Backend:** node js (MERN)  
+- **Database:** PostgreSQL  
+- **AI:** Google Gemini via LangChain  
+- **Scraping:** Playwright / BeautifulSoup / Requests  
+- **Frontend:** React + Tailwind  
+- **Storage:** PostgreSQL, optional S3 for media  
+
+---
+
+## ❤️ Join the Mission
+If you believe governance data should be **open, explainable, and AI-powered**, join us.  
+Your code can directly help citizens understand governance through **facts, not bias**.
+
+> ✳️ *Show data. Build trust. Empower citizens.*
