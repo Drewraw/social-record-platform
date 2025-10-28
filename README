@@ -85,7 +85,7 @@ This step unifies **comparison and reasoning**, turning raw data into civic insi
 
 ### 🧩 2️⃣ Database Refresh & Consistency  
 - **Problem:** PostgreSQL sometimes doesn’t refresh after enrichment.  
-- **Need:** Use SQLAlchemy ORM, add transaction safety (commit/rollback), and build validation steps.
+- 
 
 ---
 
@@ -106,8 +106,8 @@ This step unifies **comparison and reasoning**, turning raw data into civic insi
 
 | Area | Needs Help | Skillset |
 |:--|:--|:--|
-| 🧹 Scraping | Robust MyNeta scraper | Python / Playwright / BS4 |
-| 🧱 Database | Optimize sync & refresh | PostgreSQL / SQLAlchemy |
+| 🧹 Scraping | Robust MyNeta scraper | Python 
+| 🧱 Database | Optimize sync & refresh | PostgreSQL 
 | 🧠 Gemini RAG | Fix DB link & reasoning | LangChain / Gemini API |
 | ⚡ Automation | Scheduling & validation | Python / Cron |
 | 📊 Frontend | Dashboards & comparisons | React / Tailwind |
@@ -121,7 +121,10 @@ This step unifies **comparison and reasoning**, turning raw data into civic insi
 - **Scraping:** Playwright / BeautifulSoup / Requests  
 - **Frontend:** React + Tailwind  
 - **Storage:** PostgreSQL, optional S3 for media  
-
+*********************************************************************************************************
+git clone https://github.com/Drewraw/social-record-platform.git
+cd social-record-platform
+git checkout phase-one
 ---
 
 ## ❤️ Join the Mission
