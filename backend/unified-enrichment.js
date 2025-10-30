@@ -440,18 +440,43 @@ Format as JSON:
 
 // ==================== IMAGE FETCHING ====================
 
-async function fetchProfileImage(name, mynetaData) {
+// ==================== IMAGE FETCHING ====================
+async function fetchProfileImage(name, mynetaData, wikipediaData) {
   console.log(`\n📸 Fetching profile image for ${name}...`);
-  
-  // Try MyNeta image first
-  if (mynetaData._source_url) {
+
+  // 1️⃣ Try Wikipedia first
+  if (wikipediaData?.infobox) {
+    // Common keys that store image info
+    const imageKeys = Object.keys(wikipediaData.infobox).filter(k =>
+      k.toLowerCase().includes('image') ||
+      k.toLowerCase().includes('photo') ||
+      k.toLowerCase().includes('portrait')
+    );
+
+    if (imageKeys.length > 0) {
+      let wikiImg = wikipediaData.infobox[imageKeys[0]];
+
+      // Sometimes Wikipedia gives only filename like "N_Chandrababu_Naidu.jpg"
+      if (wikiImg && !wikiImg.startsWith('http')) {
+        wikiImg = `https://en.wikipedia.org/wiki/Special:FilePath/${encodeURIComponent(wikiImg)}`;
+      }
+
+      if (wikiImg) {
+        console.log(`✅ Found Wikipedia image: ${wikiImg}`);
+        return wikiImg;
+      }
+    }
+  }
+
+  // 2️⃣ Fallback to MyNeta (if available)
+  if (mynetaData?._source_url) {
     try {
       const response = await axios.get(mynetaData._source_url, {
         headers: { 'User-Agent': 'Mozilla/5.0' }
       });
       const $ = cheerio.load(response.data);
       const imgSrc = $('img[src*="candidate"]').first().attr('src');
-      
+
       if (imgSrc) {
         const fullUrl = imgSrc.startsWith('http') ? imgSrc : `https://myneta.info${imgSrc}`;
         console.log(`✅ Found MyNeta image: ${fullUrl}`);
@@ -461,8 +486,8 @@ async function fetchProfileImage(name, mynetaData) {
       console.log('⚠️  No MyNeta image found');
     }
   }
-  
-  // Fallback to avatar
+
+  // 3️⃣ Last fallback → Avatar (placeholder)
   const fallbackUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
   console.log(`✅ Using avatar fallback`);
   return fallbackUrl;
@@ -472,52 +497,62 @@ async function fetchProfileImage(name, mynetaData) {
 
 async function checkDatabaseStatus() {
   console.log('\n📊 Checking database status...\n');
-  
-  const result = await pool.query(`
-    SELECT 
-      serial_number, id, name, position, party, constituency,
-      education, assets, dynasty_status, image_url
-    FROM officials 
-    ORDER BY serial_number
-  `);
-  
-  console.log('Serial | ID  | Name                          | Education | Assets | Dynasty | Image');
-  console.log('-------+-----+-------------------------------+-----------+--------+---------+-------');
-  
-  let enrichedCount = 0;
-  const needsEnrichment = [];
-  
-  result.rows.forEach(row => {
-    const hasEducation = row.education && row.education !== 'To be updated' && row.education !== 'N/A';
-    const hasAssets = row.assets && row.assets !== 'To be updated' && row.assets !== 'N/A';
-    const hasDynasty = row.dynasty_status && row.dynasty_status !== 'Unknown';
-    const hasImage = row.image_url && !row.image_url.includes('dicebear');
-    
-    const enriched = hasEducation && hasAssets;
-    if (enriched) enrichedCount++;
-    else needsEnrichment.push(row);
-    
-    const status = enriched ? '✅' : '❌';
-    
-    console.log(
-      `${status} ${String(row.serial_number || '').padEnd(3)} | ` +
-      `${String(row.id).padEnd(3)} | ` +
-      `${(row.name || '').padEnd(29).substring(0, 29)} | ` +
-      `${(hasEducation ? 'YES' : 'NO').padEnd(9)} | ` +
-      `${(hasAssets ? 'YES' : 'NO').padEnd(6)} | ` +
-      `${(hasDynasty ? 'YES' : 'NO').padEnd(7)} | ` +
-      `${hasImage ? 'YES' : 'NO'}`
-    );
-  });
-  
-  console.log('\n' + '='.repeat(100));
-  console.log(`📈 Progress: ${enrichedCount}/${result.rows.length} officials enriched (${Math.round(enrichedCount/result.rows.length*100)}%)`);
-  console.log('='.repeat(100) + '\n');
-  
-  return { total: result.rows.length, enriched: enrichedCount, needsEnrichment };
+
+  try {
+    // ✅ Fetch rows from officials table
+    const result = await pool.query(`
+      SELECT 
+        serial_number, id, name, position, party, constituency,
+        education, assets, dynasty_status, image_url
+      FROM officials 
+      ORDER BY serial_number
+    `);
+
+    console.log('Serial | ID  | Name                          | Education | Assets | Dynasty | Image');
+    console.log('-------+-----+-------------------------------+-----------+--------+---------+-------');
+
+    let enrichedCount = 0;
+    const needsEnrichment = [];
+
+    result.rows.forEach(row => {
+      const hasEducation = row.education && row.education !== 'To be updated' && row.education !== 'N/A';
+      const hasAssets = row.assets && row.assets !== 'To be updated' && row.assets !== 'N/A';
+      const hasDynasty = row.dynasty_status && row.dynasty_status !== 'Unknown';
+      const hasImage = row.image_url && !row.image_url.includes('dicebear');
+
+      const enriched = hasEducation && hasAssets;
+      if (enriched) enrichedCount++;
+      else needsEnrichment.push(row);
+
+      const status = enriched ? '✅' : '❌';
+
+      console.log(
+        `${status} ${String(row.serial_number || '').padEnd(3)} | ` +
+        `${String(row.id).padEnd(3)} | ` +
+        `${(row.name || '').padEnd(29).substring(0, 29)} | ` +
+        `${(hasEducation ? 'YES' : 'NO').padEnd(9)} | ` +
+        `${(hasAssets ? 'YES' : 'NO').padEnd(6)} | ` +
+        `${(hasDynasty ? 'YES' : 'NO').padEnd(7)} | ` +
+        `${hasImage ? 'YES' : 'NO'}`
+      );
+    });
+
+    console.log('\n' + '='.repeat(100));
+    console.log(`📈 Progress: ${enrichedCount}/${result.rows.length} officials enriched (${Math.round(enrichedCount / result.rows.length * 100)}%)`);
+    console.log('='.repeat(100) + '\n');
+
+    return { total: result.rows.length, enriched: enrichedCount, needsEnrichment };
+
+  } catch (error) {
+    console.error('❌ Error checking database status:', error.message);
+    return null;
+  }
 }
 
 async function updateOfficial(name, mynetaUrl) {
+  // NOTE: If you get 'value too long for type character varying(255)' errors,
+  // update these columns in your officials table to TEXT:
+  // assets, liabilities, dynasty_status, political_relatives, profile_data, image_url, education, party, constituency
   console.log('\n' + '='.repeat(80));
   console.log(`🚀 ENRICHING: ${name}`);
   console.log('='.repeat(80));
@@ -543,21 +578,32 @@ async function updateOfficial(name, mynetaUrl) {
     const analysis = await analyzeWithOpenAI(mynetaData, name, wikipediaData, familyResearch);
     
     // 6. Fetch profile image
-    const imageUrl = await fetchProfileImage(name, mynetaData);
+    const imageUrl = await fetchProfileImage(name, mynetaData, wikipediaData);
     
-    // 7. Format political relatives as readable text
+    // 7. Format political relatives as readable text, filter out all-N/A entries
     let politicalRelativesText = 'None known';
     if (familyResearch.politicalRelatives && familyResearch.politicalRelatives.length > 0) {
-      politicalRelativesText = familyResearch.politicalRelatives.map(rel => 
-        `${rel.name} (${rel.relationship}) - ${rel.position}, ${rel.party} [${rel.status}]`
-      ).join('; ');
+      const filteredRelatives = familyResearch.politicalRelatives.filter(rel => {
+        // Remove if all fields except name/relationship are 'N/A'
+        return !(
+          (rel.position === 'N/A' || !rel.position) &&
+          (rel.party === 'N/A' || !rel.party) &&
+          (rel.status === 'N/A' || !rel.status)
+        );
+      });
+      if (filteredRelatives.length > 0) {
+        politicalRelativesText = filteredRelatives.map(rel => 
+          `${rel.name} (${rel.relationship}) - ${rel.position}, ${rel.party} [${rel.status}]`
+        ).join('; ');
+      }
     }
     
-    // 8. Check if official exists
-    const checkResult = await pool.query(
-      'SELECT id, serial_number FROM officials WHERE name = $1',
-      [name]
-    );
+    // 8. Check if official exists (robust matching: ignore spaces, match from start)
+    const checkResult = await pool.query(`
+      SELECT id, serial_number, name
+      FROM officials
+      WHERE LOWER(REPLACE(name, ' ', '')) LIKE LOWER(REPLACE($1, ' ', '')) || '%'
+    `, [name]);
     
     if (checkResult.rows.length === 0) {
       console.log(`⚠️  ${name} not found in database. Please add them first.`);
@@ -569,13 +615,196 @@ async function updateOfficial(name, mynetaUrl) {
     
     console.log(`\n💾 Updating database (ID: ${officialId}, Serial: ${serialNumber})...`);
     
-    // 9. Prepare enriched profile data
+    // 9. Use OpenAI to summarize and rewrite profile data simply
+    // If any essential field is missing, try Wikipedia and OpenAI to fill it
+    const essentialFields = [
+      'education', 'age', 'party', 'constituency', 'assets', 'liabilities', 'criminalCases', 'profession'
+    ];
+    const missingFields = essentialFields.filter(f => !completeData[f] || completeData[f] === 'N/A');
+
+    let filledData = { ...completeData };
+    if (missingFields.length > 0) {
+      // Try Wikipedia infobox first
+      if (wikipediaData?.infobox) {
+        missingFields.forEach(field => {
+          if (!filledData[field] || filledData[field] === 'N/A') {
+            // Map Wikipedia infobox keys to our fields
+            const wikiMap = {
+              education: 'Education',
+              age: 'Born',
+              party: 'Political party',
+              constituency: 'Constituency',
+              profession: 'Occupation'
+            };
+            const wikiKey = wikiMap[field];
+            if (wikiKey && wikipediaData.infobox[wikiKey]) {
+              filledData[field] = wikipediaData.infobox[wikiKey];
+            }
+          }
+        });
+      }
+      // If still missing, use OpenAI to fill
+      const stillMissing = essentialFields.filter(f => !filledData[f] || filledData[f] === 'N/A');
+      if (stillMissing.length > 0) {
+        const prompt = `Rewrite the following politician's profile in simple, clear language. Fill any missing fields if possible.\n\nName: ${name}\nEducation: ${filledData.education}\nAge: ${filledData.age}\nParty: ${filledData.party}\nConstituency: ${filledData.constituency}\nAssets: ${filledData.assets}\nLiabilities: ${filledData.liabilities}\nCriminal Cases: ${filledData.criminalCases}\nProfession: ${filledData.profession}\n\nReturn as JSON with keys: education, age, party, constituency, assets, liabilities, criminalCases, profession.`;
+        try {
+          const completion = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [
+              { role: 'system', content: 'You are a helpful assistant for simplifying and filling politician profiles.' },
+              { role: 'user', content: prompt }
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0.2
+          });
+          const aiData = JSON.parse(completion.choices[0].message.content);
+          filledData = { ...filledData, ...aiData };
+        } catch (error) {
+          console.error('❌ OpenAI fill failed:', error.message);
+        }
+      }
+    }
+
+    // Use OpenAI to research and format political relatives and business interests
+    let structuredRelatives = [];
+    let businessInterests = '';
+    try {
+      const relativesPrompt = `Given the following raw family data, format each political relative as a structured object with fields: name, relationship, position, party, status.\n\nRaw Data:\n${JSON.stringify(familyResearch.politicalRelatives)}\n\nReturn as JSON array.`;
+      const relativesCompletion = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: 'You format political relatives as structured objects.' },
+          { role: 'user', content: relativesPrompt }
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.2
+      });
+      structuredRelatives = JSON.parse(relativesCompletion.choices[0].message.content);
+    } catch (error) {
+      structuredRelatives = familyResearch.politicalRelatives || [];
+    }
+
+    try {
+      const businessPrompt = `Extract and list any business interests or affiliated companies from the following family wealth and summary data.\n\nFamily Wealth: ${analysis.familyWealth}\nFamily Summary: ${familyResearch.familySummary}\n\nReturn as a comma-separated string.`;
+      const businessCompletion = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: 'You extract business interests and affiliated companies.' },
+          { role: 'user', content: businessPrompt }
+        ],
+        response_format: { type: 'text' },
+        temperature: 0.2
+      });
+      businessInterests = businessCompletion.choices[0].message.content.trim();
+    } catch (error) {
+      businessInterests = analysis.familyWealth || '';
+    }
+
+    // Add consistentWinner, currentOffice, partyHistory, educationalStatus
+    let consistentWinner = analysis.consistentWinner || '';
+    let currentOffice = completeData.position || '';
+    let partyHistory = '';
+    let educationalStatus = filledData.education || '';
+
+    // Try Wikipedia infobox for missing details
+    if (!currentOffice && wikipediaData?.infobox?.['Office']) {
+      currentOffice = wikipediaData.infobox['Office'];
+    }
+    if (!educationalStatus && wikipediaData?.infobox?.['Education']) {
+      educationalStatus = wikipediaData.infobox['Education'];
+    }
+    // Use OpenAI to fill party history if possible
+    try {
+      const partyPrompt = `List all political parties this politician has been affiliated with, in order, based on the following data.\n\nParty: ${filledData.party}\nWikipedia: ${wikipediaData?.extract || ''}`;
+      const partyCompletion = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: 'You extract party history from profile and Wikipedia.' },
+          { role: 'user', content: partyPrompt }
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.2
+      });
+      const partyData = JSON.parse(partyCompletion.choices[0].message.content);
+      partyHistory = partyData.partyHistory || '';
+    } catch (error) {
+      partyHistory = filledData.party || '';
+    }
+
+    // Use OpenAI to fill consistent winner if missing
+    if (!consistentWinner) {
+      try {
+        const winnerPrompt = `Is this politician a consistent winner in elections? Use the following data to answer.\n\nWikipedia: ${wikipediaData?.extract || ''}`;
+        const winnerCompletion = await openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [
+            { role: 'system', content: 'You determine if the politician is a consistent winner.' },
+            { role: 'user', content: winnerPrompt }
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.2
+        });
+        const winnerData = JSON.parse(winnerCompletion.choices[0].message.content);
+        consistentWinner = winnerData.consistentWinner || '';
+      } catch (error) {
+        consistentWinner = '';
+      }
+    }
+
+    // Simplify family summary and relatives for frontend
+    let simpleFamilySummary = '';
+    let simpleRelatives = [];
+    try {
+      const summaryPrompt = `Rewrite this family summary in one short, simple sentence for the public:\n${familyResearch.familySummary}`;
+      const summaryCompletion = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: 'You write short, clear family summaries.' },
+          { role: 'user', content: summaryPrompt }
+        ],
+        response_format: { type: 'text' },
+        temperature: 0.2
+      });
+      simpleFamilySummary = summaryCompletion.choices[0].message.content.trim();
+    } catch (error) {
+      simpleFamilySummary = familyResearch.familySummary || '';
+    }
+
+    try {
+      const relativesPrompt = `Format the following list of political relatives as an array of objects, each with: name, relationship, and party (in this order).\n${JSON.stringify(structuredRelatives)}\nReturn as JSON array.`;
+      const relativesCompletion = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: 'You format political relatives for display: name, relationship, party.' },
+          { role: 'user', content: relativesPrompt }
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.2
+      });
+      simpleRelatives = JSON.parse(relativesCompletion.choices[0].message.content);
+    } catch (error) {
+      simpleRelatives = structuredRelatives || [];
+    }
+
     const enrichedProfileData = {
-      myneta: mynetaData,
-      wikipedia: wikipediaData,
-      completeData: completeData,
-      familyResearch: familyResearch,
-      analysis: analysis
+      name,
+      education: filledData.education,
+      age: filledData.age,
+      party: filledData.party,
+      constituency: filledData.constituency,
+      assets: filledData.assets,
+      liabilities: filledData.liabilities,
+      criminalCases: filledData.criminalCases,
+      profession: filledData.profession,
+      imageUrl,
+      dynastyStatus: familyResearch.dynastyStatus,
+      familySummary: simpleFamilySummary,
+      politicalRelatives: simpleRelatives,
+      businessInterests,
+      consistentWinner,
+      currentOffice,
+      partyHistory,
+      educationalStatus
     };
     
     // 10. Update database with complete data from all sources
@@ -594,10 +823,8 @@ async function updateOfficial(name, mynetaUrl) {
         knowledgeful = $12,
         consistent_winner = $13,
         political_relatives = $14,
-        image_url = $15,
-        profile_image_url = $15,
-        contact_email = $16,
-        profile_data = $17,
+           image_url = $15,
+        profile_data = $16,
         profile_updated_at = CURRENT_TIMESTAMP,
         updated_at = NOW()
       WHERE id = $1
@@ -617,7 +844,6 @@ async function updateOfficial(name, mynetaUrl) {
       analysis.consistentWinner,
       politicalRelativesText,
       imageUrl,
-      completeData.email,
       JSON.stringify(enrichedProfileData)
     ]);
     
@@ -850,7 +1076,9 @@ async function main() {
       
     } else if (args.length >= 2) {
       // Enrich specific official
-      const [name, url] = args;
+      let [name, url] = args;
+      // Preprocess name: add spaces before uppercase letters, convert to lower case, trim
+      name = name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g, ' ').toLowerCase().trim();
       const success = await updateOfficial(name, url);
       
       if (success) {
