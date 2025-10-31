@@ -7,8 +7,9 @@
 ### Phase One (Prototype)
 Branch: [`phaseone`]--https://github.com/Drewraw/social-record-platform/tree/phase-one
 Preview: [Claude Artifact](https://claude.ai/public/artifacts/d012c4c8-5c74-4965-aeee-b2245f304bf6)  
-Description: First MVP showcasing the core app layout and logic.
-###activityprofiletab::branch: https://claude.ai/public/artifacts/aa98a68b-8484-4702-9580-f03b10f426df
+Description: First MVP showcasing the core app layout and logic
+
+###Activityprofiletab::branch: https://claude.ai/public/artifacts/aa98a68b-8484-4702-9580-f03b10f426df
  this branch is about developing infrastructure tab and activity tab inside profile TAB
 
 ### Phase Two (Debug Build)
