@@ -1,0 +1,13 @@
+{
+  "name": "potholes-platform",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"cd server && npm start\" \"cd client && npm run dev\"",
+    "backend": "cd server && npm start",
+    "frontend": "cd client && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

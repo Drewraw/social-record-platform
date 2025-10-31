@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS reports (
+	id SERIAL PRIMARY KEY,
+	lat DOUBLE PRECISION NOT NULL,
+	lng DOUBLE PRECISION NOT NULL,
+	description TEXT,
+	photo_url TEXT NOT NULL,
+	status TEXT DEFAULT 'open',
+	created_at TIMESTAMP DEFAULT NOW()
+);
