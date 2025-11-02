@@ -10,13 +10,13 @@ export default defineConfig({
     strictPort: true,  // 👈 ensure port is not changed
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // <-- matches your backend port
+        target: 'http://192.168.31.44:5000', // <-- matches your backend port
         changeOrigin: true,
         secure: false,
       
       },
       '/uploads': {
-        target: 'http://localhost:5001',
+        target: 'http://192.168.31.44:5001',
         changeOrigin: true,
         secure: false,
       }

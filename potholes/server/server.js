@@ -32,6 +32,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use("/uploads", express.static(UPLOAD_DIR));
+// Serve GeoJSON files for frontend map
+const geojsonDir = path.join(path.dirname(__filename), ".");
+app.use("/geojson", express.static(geojsonDir));
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => cb(null, UPLOAD_DIR),
