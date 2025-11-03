@@ -9,15 +9,32 @@ async function showProfileData() {
     console.log('Table: officials');
     console.log('='.repeat(80));
     
-    // Query for ID 6
-    console.log('\n📋 SQL Query: SELECT id, name, profile_data FROM officials WHERE id = 6;\n');
-    
-    const result = await pool.query('SELECT id, name, profile_data FROM officials WHERE id = 6');
-    
+    // Query for all officials
+    console.log('\n📋 SQL Query: SELECT id, name, profile_data FROM officials ORDER BY id;\n');
+
+    const result = await pool.query('SELECT id, name, profile_data FROM officials ORDER BY id');
+
     if (result.rows.length === 0) {
-      console.log('❌ No record found with ID 6');
+      console.log('❌ No records found');
       return;
     }
+
+    console.log(`✅ Found ${result.rows.length} record(s):\n`);
+
+    for (const row of result.rows) {
+      console.log(`ID: ${row.id}`);
+      console.log(`Name: ${row.name}`);
+      console.log(`Profile Data: ${row.profile_data ? 'Present' : 'NULL'}`);
+      console.log('-'.repeat(50));
+    }
+
+    // Show detailed data for first record
+    const firstRow = result.rows[0];
+    console.log('\n📋 DETAILED PROFILE DATA FOR FIRST RECORD:\n');
+    console.log(`ID: ${firstRow.id}`);
+    console.log(`Name: ${firstRow.name}`);
+    console.log(`\nProfile Data (JSON):`);
+    console.log(JSON.stringify(firstRow.profile_data, null, 2));
     
     const row = result.rows[0];
     

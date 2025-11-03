@@ -18,5 +18,14 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "axios": "^1.13.1",
+    "cheerio": "^1.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "openai": "^6.7.0",
+    "pg": "^8.16.3"
   }
 }

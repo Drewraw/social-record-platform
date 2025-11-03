@@ -2,6 +2,7 @@
  * MyNeta to Scorecard Mapper
  * Converts scraped MyNeta JSON to our politician scorecard format
  * and stores in the database with multi-source data enrichment
+ * create-policitician.js -> myneta
  */
 
 const fs = require('fs');

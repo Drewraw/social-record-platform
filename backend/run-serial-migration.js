@@ -5,31 +5,39 @@ const path = require('path');
 async function runMigration() {
   try {
     console.log('\n' + '='.repeat(80));
-    console.log('Running Migration: Add consistent_winner and family_wealth');
+    console.log('Running Migration: Add serial_number');
     console.log('='.repeat(80) + '\n');
 
-    const migrationPath = path.join(__dirname, 'migrations', 'add-consistent-winner-and-wealth.sql');
+    const migrationPath = path.join(__dirname, 'migrations', 'add-serial-number.sql');
     const sql = fs.readFileSync(migrationPath, 'utf8');
 
-    console.log('📂 Reading migration file...');
-    console.log('✅ File loaded successfully\n');
+    console.log(' Reading migration file...');
+    console.log('File loaded successfully\n');
 
-    console.log('🔄 Executing migration...\n');
+    console.log('Executing migration...\n');
     await pool.query(sql);
-    console.log('✅ Migration completed successfully!\n');
+    console.log(' Migration completed successfully!\n');
+
+    // Update existing records with serial numbers
+    console.log(' Updating existing records with serial numbers...\n');
+    await pool.query(`
+      UPDATE officials
+      SET serial_number = id
+      WHERE serial_number IS NULL
+    `);
+    console.log(' Serial numbers assigned to existing records\n');
 
     // Verify columns were added
     const verifyQuery = `
       SELECT column_name, data_type
       FROM information_schema.columns
       WHERE table_name = 'officials'
-        AND column_name IN ('consistent_winner', 'family_wealth')
-      ORDER BY column_name
+        AND column_name = 'serial_number'
     `;
 
     const result = await pool.query(verifyQuery);
 
-    console.log('📋 Verification - New Columns:');
+    console.log('📋 Verification - New Column:');
     result.rows.forEach(row => {
       console.log(`   ✓ ${row.column_name} (${row.data_type})`);
     });

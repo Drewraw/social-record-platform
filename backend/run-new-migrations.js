@@ -1,11 +1,5 @@
-const {Pool} = require('pg');
+const pool = require('./config/database');
 const fs = require('fs');
-require('dotenv').config();
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {rejectUnauthorized: false}
-});
 
 (async () => {
   try {
@@ -13,13 +7,13 @@ const pool = new Pool({
     
     // Migration 1: Add political_relatives column
     console.log('1️⃣ Adding political_relatives column to officials...');
-    const sql1 = fs.readFileSync('migrations/add-political-relatives.sql', 'utf8');
+    const sql1 = fs.readFileSync('backend/migrations/add-political-relatives.sql', 'utf8');
     await pool.query(sql1);
     console.log('   ✅ Done\n');
-    
+
     // Migration 2: Update donations table for party donations
     console.log('2️⃣ Updating donations table for party tracking...');
-    const sql2 = fs.readFileSync('migrations/update-donations-for-party.sql', 'utf8');
+    const sql2 = fs.readFileSync('backend/migrations/update-donations-for-party.sql', 'utf8');
     await pool.query(sql2);
     console.log('   ✅ Done\n');
     
