@@ -92,8 +92,9 @@ def parse_candidate_page(url):
             data["_election_year"] = year_match.group(1)
     
     # Historical election year filters (to skip old data)
+    # Keep recent elections (2020+) and current data, but be less aggressive
     skip_patterns = [
-        "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", 
+        "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012",
         "2011", "2010", "2009", "2008", "2007", "2006", "2005"
     ]
     
@@ -110,13 +111,16 @@ def parse_candidate_page(url):
                 val = tds[1].get_text(separator=" ", strip=True)
                 
                 if key and val:  # Skip empty rows
-                    # Skip historical election year data
+                    # Skip historical election year data - be more selective
                     should_skip = False
                     for old_year in skip_patterns:
-                        if old_year in key and ("Lok Sabha" in key or "Assembly" in key or 
-                                                 "Telangana" in key or "Andhra Pradesh" in key or
-                                                 "Karnataka" in key or "Gujarat" in key or
-                                                 any(state in key for state in ["Maharashtra", "Tamil Nadu", "Kerala", "Punjab"])):
+                        # Only skip if it's clearly historical election data, not current info
+                        if (old_year in key and
+                            ("Lok Sabha" in key or "Assembly" in key or
+                             "Telangana" in key or "Andhra Pradesh" in key or
+                             "Karnataka" in key or "Gujarat" in key or
+                             any(state in key for state in ["Maharashtra", "Tamil Nadu", "Kerala", "Punjab"])) and
+                            not any(recent_year in key for recent_year in ["2020", "2021", "2022", "2023", "2024"])):
                             should_skip = True
                             skipped_count += 1
                             break

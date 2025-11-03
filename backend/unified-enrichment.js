@@ -501,11 +501,11 @@ async function checkDatabaseStatus() {
   try {
     // ✅ Fetch rows from officials table
     const result = await pool.query(`
-      SELECT 
-        serial_number, id, name, position, party, constituency,
+      SELECT
+        id, name, position, party, constituency,
         education, assets, dynasty_status, image_url
-      FROM officials 
-      ORDER BY serial_number
+      FROM officials
+      ORDER BY id
     `);
 
     console.log('Serial | ID  | Name                          | Education | Assets | Dynasty | Image');
