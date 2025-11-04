@@ -96,30 +96,9 @@ npm start
 
 ## 🎯 Current Status
 
-✅ Homepage with category filters
-✅ Official profile cards with badges
-✅ Profile page with 5 tabs
-✅ Mock data integration
-✅ Responsive design
-✅ Backend enrichment script: politicians' data (biography, family, tenure) auto-updated from Wikipedia and other sources
-✅ Preview of all DB updates before applying
-✅ Modular enrichment for any official
-🚧 Database setup (in progress)
-🚧 Frontend DB integration (in progress)
+✅MYnetascraper.py and .json to DB convertor is working with 80 %accuracy. working on Rag-Ai Q&A 
+Next will be integrating public infra issues like potholes issues into profile infrastruture tab inside profile header using map.
 
-## 📝 Development Notes
-
-
-## ⚠️ Known Issues
-
-- DB data is not always fetching properly into the frontend; sometimes the PostgreSQL server does not refresh or sync as expected.
-- If you encounter missing or outdated data, try restarting the backend server and ensure the DB connection is healthy.
-- Enrichment script only updates fields present in the DB schema (e.g., tenure, biography, family, wealth).
-
-## 📝 Development Notes
-Front-end uses mock data when backend is unavailable
-Category badges display based on official properties
-All old HTML/CSS files have been removed (migrated to React)
 
 ## 🤝 Contributing
 
