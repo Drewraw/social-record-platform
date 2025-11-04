@@ -1,5 +1,5 @@
 const pool = require('../config/database');
-const openaiService = require('../services/openaiService');
+// OpenAI service removed - using database fields directly
 
 // Get all officials with optional filters
 exports.getAllOfficials = async (req, res) => {
@@ -39,17 +39,30 @@ exports.getAllOfficials = async (req, res) => {
 
     const result = await pool.query(query, params);
     
-    // Format response to match frontend expectations
+    // Format response to match frontend expectations with source URLs
     const officials = result.rows.map(row => ({
       id: row.id,
       name: row.name,
       position: `${row.position} - ${row.constituency}`,
       party: row.party,
       constituency: row.constituency,
+      state: row.state,
       tenure: row.tenure,
       dynastyStatus: row.dynasty_status,
-      currentWealth: row.current_wealth,
+      education: row.education,
+      assets: row.assets,
+      liabilities: row.liabilities,
+      criminal_cases: row.criminal_cases,
+      convicted_cases: row.convicted_cases || 0, // Enhanced conviction status
+      age: row.age,
+      contact_email: row.contact_email,
+      family_wealth: row.family_wealth, // Business interests
       knowledgeful: row.knowledgeful,
+      consistent_winner: row.consistent_winner,
+      serial_number: row.serial_number,
+      politicalRelatives: row.political_relatives || 'None identified',
+      partyHistory: row.party_history || 'No party switches in last 10 years',
+      currentWealth: row.current_wealth,
       image: row.profile_image_url || row.image_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.name.replace(/\s+/g, '')}`,
       approvals: row.approvals,
       disapprovals: row.disapprovals,
@@ -59,20 +72,17 @@ exports.getAllOfficials = async (req, res) => {
       broken: parseInt(row.broken) || 0,
       discussions: parseInt(row.discussions) || 0,
       lastUpdated: row.updated_at,
-      profileDetails: row.profile_data ? {
-        education: row.profile_data.education || { value: row.education || 'N/A', sourceUrl: '#' },
-        assets: row.profile_data.assetsFinancials?.totalAssets || { value: row.assets || 'N/A', sourceUrl: '#' },
-        liabilities: row.profile_data.assetsFinancials?.liabilities || { value: row.liabilities || 'N/A', sourceUrl: '#' },
-        criminalCases: row.profile_data.criminalCases?.totalCases || { value: row.criminal_cases || '0 Cases', sourceUrl: '#' },
-        age: row.profile_data.personalBackground?.age || { value: row.age || 'N/A', sourceUrl: '#' },
-        contactEmail: { value: row.contact_email || 'N/A', sourceUrl: '#' }
-      } : {
-        education: { value: row.education || 'N/A', sourceUrl: '#' },
-        assets: { value: row.assets || 'N/A', sourceUrl: '#' },
-        liabilities: { value: row.liabilities || 'N/A', sourceUrl: '#' },
-        criminalCases: { value: row.criminal_cases || '0 Cases', sourceUrl: '#' },
-        age: { value: row.age || 'N/A', sourceUrl: '#' },
-        contactEmail: { value: row.contact_email || 'N/A', sourceUrl: '#' }
+      profileDetails: {
+        education: { value: row.education || 'N/A', sourceUrl: row.education_source || 'Database' },
+        assets: { value: row.assets || 'N/A', sourceUrl: row.assets_source || 'Database' },
+        liabilities: { value: row.liabilities || 'N/A', sourceUrl: row.liabilities_source || 'Database' },
+        criminalCases: { value: parseInt(row.criminal_cases) || 0, sourceUrl: row.criminal_cases_source || 'Database' },
+        convictedCases: { value: parseInt(row.convicted_cases) || 0, sourceUrl: row.convicted_cases_source || 'Database' },
+        age: { value: row.age || 'N/A', sourceUrl: row.age_source || 'Database' },
+        contactEmail: { value: row.contact_email || 'N/A', sourceUrl: row.contact_email_source || 'Database' },
+        familyWealth: { value: row.family_wealth || 'N/A', sourceUrl: row.family_wealth_source || 'Database' },
+        approvals: { value: parseInt(row.approvals) || 0, sourceUrl: 'Database' },
+        disapprovals: { value: parseInt(row.disapprovals) || 0, sourceUrl: 'Database' }
       }
     }));
 
@@ -112,49 +122,31 @@ exports.getOfficialById = async (req, res) => {
       [id]
     );
 
-    // Get profile data from database
-    let profileData = official.profile_data;
-    
-    // If profile data doesn't exist, fetch it once and store permanently
-    if (!profileData) {
-      try {
-        console.log(`🔍 Fetching profile for ${official.name} using OpenAI...`);
-        const profile = await openaiService.fetchProfile(
-          official.name,
-          official.state || 'Andhra Pradesh'
-        );
-        
-        if (profile) {
-          profileData = profile;
-          
-          // Store the profile data permanently in database
-          await pool.query(
-            `UPDATE officials SET 
-              profile_data = $1,
-              profile_updated_at = CURRENT_TIMESTAMP
-            WHERE id = $2`,
-            [JSON.stringify(profileData), id]
-          );
-          
-          console.log(`✅ Profile data stored permanently for ${official.name}`);
-        }
-      } catch (profileError) {
-        console.error('❌ Error fetching profile:', profileError);
-        profileData = null;
-      }
-    }
+    console.log(`📋 Loading profile for ${official.name} from database columns...`);
 
-    // Format response using standardized profile structure
+    // Format response using ONLY database fields (no OpenAI dependency)
     const response = {
       id: official.id,
       name: official.name,
       position: official.position,
-      party: profileData?.currentOfficeParty?.party?.value || profileData?.currentOfficeParty?.party || official.party,
-      constituency: profileData?.currentOfficeParty?.constituency?.value || profileData?.currentOfficeParty?.constituency || official.constituency,
+      party: official.party,
+      constituency: official.constituency,
+      state: official.state,
       tenure: official.tenure,
-      dynastyStatus: profileData?.politicalBackground?.dynastyStatus?.value || profileData?.politicalBackground?.dynastyStatus || official.dynasty_status,
-      politicalRelatives: official.political_relatives || 'None identified', // Add political relatives from database
-      partyHistory: official.party_history || 'No party switches in last 10 years', // Add party history from database
+      dynastyStatus: official.dynasty_status,
+      education: official.education,
+      assets: official.assets,
+      liabilities: official.liabilities,
+      criminal_cases: official.criminal_cases,
+      convicted_cases: official.convicted_cases || 0, // Enhanced conviction status from MyNeta scraper
+      age: official.age,
+      contact_email: official.contact_email,
+      family_wealth: official.family_wealth, // Business interests for frontend
+      knowledgeful: official.knowledgeful,
+      consistent_winner: official.consistent_winner,
+      serial_number: official.serial_number,
+      politicalRelatives: official.political_relatives || 'None identified', // From MyNeta scraper
+      partyHistory: official.party_history || 'No party switches in last 10 years', // From database
       image: official.profile_image_url || official.image_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${official.name.replace(/\s+/g, '')}`,
       approvals: official.approvals,
       disapprovals: official.disapprovals,
@@ -164,11 +156,31 @@ exports.getOfficialById = async (req, res) => {
       broken: parseInt(promisesCount.rows[0].broken),
       discussions: parseInt(discussionCount.rows[0].count),
       
-      // Standardized Profile Overview - Return profile_data directly since it already has correct structure
-      profileOverview: profileData || {},
+      // Profile Overview: Create structured data from database fields with actual source URLs
+      profileOverview: {
+        completeData: {
+          education: { value: official.education || 'N/A', sourceUrl: official.education_source || 'Database' },
+          assets: { value: official.assets || 'N/A', sourceUrl: official.assets_source || 'Database' },
+          liabilities: { value: official.liabilities || 'N/A', sourceUrl: official.liabilities_source || 'Database' },
+          criminalCases: { value: parseInt(official.criminal_cases) || 0, sourceUrl: official.criminal_cases_source || 'Database' },
+          convictedCases: { value: parseInt(official.convicted_cases) || 0, sourceUrl: official.convicted_cases_source || 'Database' },
+          dynastyStatus: { value: official.dynasty_status || 'N/A', sourceUrl: official.dynasty_status_source || 'Database' },
+          party: { value: official.party || 'N/A', sourceUrl: official.party_source || 'Database' },
+          constituency: { value: official.constituency || 'N/A', sourceUrl: official.constituency_source || 'Database' },
+          position: { value: official.position || 'N/A', sourceUrl: official.position_source || 'Database' },
+          age: { value: official.age || 'N/A', sourceUrl: official.age_source || 'Database' },
+          politicalRelatives: { value: official.political_relatives || 'N/A', sourceUrl: official.political_relatives_source || 'Database' },
+          familyWealth: { value: official.family_wealth || 'N/A', sourceUrl: official.family_wealth_source || 'Database' },
+          approvals: { value: parseInt(official.approvals) || 0, sourceUrl: 'Database' },
+          disapprovals: { value: parseInt(official.disapprovals) || 0, sourceUrl: 'Database' },
+          convictedCases: { value: official.convicted_cases || '0', sourceUrl: official.convicted_cases_source || 'Database' }
+        },
+        analysis: {
+          familyWealth: official.family_wealth || 'N/A'
+        }
+      },
       
-      lastUpdated: official.updated_at,
-      profileLastFetched: official.profile_updated_at
+      lastUpdated: official.updated_at
     };
 
     res.json(response);
@@ -214,46 +226,7 @@ exports.createOfficial = async (req, res) => {
 
     const official = result.rows[0];
     console.log(`✅ Official created with ID: ${official.id}`);
-
-    // Step 2: Auto-fetch profile data using OpenAI with scorecard template (don't wait for it)
-    setImmediate(async () => {
-      try {
-        console.log(`🤖 Auto-fetching profile data using OpenAI scorecard template...`);
-        
-        const profileData = await openaiService.fetchProfile(
-          name,
-          state || 'India'
-        );
-        
-        if (profileData) {
-          // Store profile data in database
-          await pool.query(
-            `UPDATE officials SET 
-              profile_data = $1,
-              profile_updated_at = CURRENT_TIMESTAMP,
-              education = $2,
-              assets = $3,
-              liabilities = $4,
-              criminal_cases = $5
-            WHERE id = $6`,
-            [
-              JSON.stringify(profileData),
-              profileData.education?.value || 'To be updated',
-              profileData.assetsFinancials?.totalAssets?.value || 'To be updated',
-              profileData.assetsFinancials?.liabilities?.value || 'To be updated',
-              profileData.criminalCases?.totalCases?.value || 'To be updated',
-              official.id
-            ]
-          );
-          
-          console.log(`✅ Profile data fetched and stored for ${name}`);
-        } else {
-          console.log(`⚠️  Could not fetch profile data`);
-        }
-      } catch (profileError) {
-        console.error('⚠️  Error auto-fetching profile:', profileError.message);
-      }
-    });
+    console.log(`📋 Profile data should be populated using MyNeta scraper and json-DBconv.js`);
 
     res.status(201).json(official);
   } catch (error) {

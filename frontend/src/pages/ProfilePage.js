@@ -65,8 +65,33 @@ const ProfilePage = () => {
   const getValue = (field) => {
     if (!field) return null;
     if (typeof field === 'string') return field;
-    if (field.value) return field.value;
+    if (typeof field === 'number') return field.toString();
+    if (field.value !== undefined) return field.value;
+    if (typeof field === 'object' && field !== null) {
+      // Handle cases where the object might have other properties
+      return JSON.stringify(field);
+    }
     return null;
+  };
+
+  // Helper function to get field with source URL from completeData
+  const getFieldWithSource = (fieldName, fallbackValue = 'N/A') => {
+    const completeData = profile.completeData || {};
+    const fieldData = completeData[fieldName];
+    
+    if (fieldData && fieldData.value && fieldData.sourceUrl) {
+      return {
+        value: fieldData.value,
+        sourceUrl: fieldData.sourceUrl
+      };
+    }
+    
+    // Fallback to official field directly if completeData not available
+    const directValue = official[fieldName] || fallbackValue;
+    return {
+      value: directValue,
+      sourceUrl: 'Database'
+    };
   };
 
   // Use structured summary fields if available, fallback to raw scraped data
@@ -74,18 +99,6 @@ const ProfilePage = () => {
   const analysis = profile.analysis || {};
   const wikipedia = profile.wikipedia || {};
   const myneta = profile.myneta || {};
-
-
-  // Helper to get value and source from myneta if structured missing
-  const getField = (structured, rawKey) => {
-    return structured || getValue(myneta[rawKey]);
-  };
-  // Helper to get source URL from structured or myneta
-  const getSource = (structured, rawKey) => {
-    if (structured && structured.sourceUrl) return structured.sourceUrl;
-    if (myneta[rawKey] && myneta[rawKey].sourceUrl) return myneta[rawKey].sourceUrl;
-    return null;
-  };
 
   // Helper function to render table row
   const renderTableRow = (category, detail, sourceUrl, isHeader = false) => {
@@ -184,28 +197,106 @@ const ProfilePage = () => {
                     </tr>
 
                     {renderSectionHeader('Current Office & Party')}
-                    {renderTableRow('Position', getField(completeData.profession, 'Self'), getSource(completeData.profession, 'Self'))}
-                    {renderTableRow('Party & Role', getField(completeData.party, 'Party'), getSource(completeData.party, 'Party'))}
-                    {renderTableRow('Constituency', getField(completeData.constituency, 'Constituency'), getSource(completeData.constituency, 'Constituency'))}
+                    {(() => {
+                      const positionData = getFieldWithSource('position', official.position);
+                      return renderTableRow('Position', positionData.value, positionData.sourceUrl);
+                    })()}
+                    {(() => {
+                      const partyData = getFieldWithSource('party', official.party);
+                      return renderTableRow('Party & Role', partyData.value, partyData.sourceUrl);
+                    })()}
+                    {(() => {
+                      const constituencyData = getFieldWithSource('constituency', official.constituency);
+                      return renderTableRow('Constituency', constituencyData.value, constituencyData.sourceUrl);
+                    })()}
                     
                     {/* Educational Status */}
                     {renderSectionHeader('Educational Status')}
-                    {renderTableRow('Education', getField(completeData.education, 'Education'), getSource(completeData.education, 'Education'))}
+                    {(() => {
+                      const educationData = getFieldWithSource('education', official.education);
+                      return renderTableRow('Education', educationData.value, educationData.sourceUrl);
+                    })()}
+                    {(() => {
+                      const ageData = getFieldWithSource('age', official.age);
+                      if (ageData.value && ageData.value !== 'N/A') {
+                        return renderTableRow('Age', `${ageData.value} years`, ageData.sourceUrl);
+                      }
+                      return null;
+                    })()}
                     
                     {/* Assets & Financials */}
                     {renderSectionHeader('Assets & Financials (2024 Affidavit)')}
-                    {renderTableRow('Total Assets', getField(completeData.assets, 'Lok Sabha 2019'), getSource(completeData.assets, 'Lok Sabha 2019'))}
-                    {renderTableRow('Source of Wealth', getField(analysis.currentWealth, 'Source of Wealth'), getSource(analysis.currentWealth, 'Source of Wealth'))}
-                    {renderTableRow('Liabilities', getField(completeData.liabilities, 'Liabilities'), getSource(completeData.liabilities, 'Liabilities'))}
+                    {(() => {
+                      const assetsData = getFieldWithSource('assets', official.assets);
+                      return renderTableRow('Total Assets', assetsData.value, assetsData.sourceUrl);
+                    })()}
+                    {(() => {
+                      const familyWealthData = getFieldWithSource('familyWealth', official.family_wealth);
+                      return renderTableRow('Source of Wealth', familyWealthData.value, familyWealthData.sourceUrl);
+                    })()}
+                    {(() => {
+                      const liabilitiesData = getFieldWithSource('liabilities', official.liabilities);
+                      return renderTableRow('Liabilities', liabilitiesData.value, liabilitiesData.sourceUrl);
+                    })()}
                     
                     {/* Criminal Cases */}
                     {renderSectionHeader('Criminal Cases')}
-                    {renderTableRow('Criminal Cases Declared', getField(completeData.criminalCases, 'Criminal Cases'), getSource(completeData.criminalCases, 'Criminal Cases'))}
+                    {(() => {
+                      const criminalCasesData = getFieldWithSource('criminalCases', official.criminal_cases);
+                      return renderTableRow('Criminal Cases Declared', criminalCasesData.value, criminalCasesData.sourceUrl);
+                    })()}
+                    
+                    {/* Convicted Cases - Enhanced field with conviction status */}
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '0.75rem', fontWeight: 600, fontSize: '0.875rem', color: '#374151', verticalAlign: 'top' }}>Conviction Status</td>
+                      <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280', verticalAlign: 'top' }}>
+                        {official.convicted_cases ? (
+                          <div style={{ 
+                            padding: '0.5rem', 
+                            borderRadius: '0.375rem',
+                            background: official.convicted_cases > 0 ? '#fee2e2' : '#d1fae5',
+                            border: official.convicted_cases > 0 ? '1px solid #fca5a5' : '1px solid #86efac',
+                            color: official.convicted_cases > 0 ? '#dc2626' : '#059669',
+                            fontWeight: 600
+                          }}>
+                            {official.convicted_cases > 0 ? (
+                              <span>🚨 {official.convicted_cases} Convicted Case{official.convicted_cases > 1 ? 's' : ''}</span>
+                            ) : (
+                              <span>✅ Zero Convictions</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Conviction status not available</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '0.75rem', fontSize: '0.75rem', color: '#3b82f6', verticalAlign: 'top' }}>
+                        {(() => {
+                          const convictedCasesData = getFieldWithSource('convictedCases', official.convicted_cases);
+                          if (convictedCasesData.sourceUrl && convictedCasesData.sourceUrl !== 'N/A' && convictedCasesData.sourceUrl !== 'Database') {
+                            return (
+                              <a href={convictedCasesData.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' }}>
+                                {convictedCasesData.sourceUrl.length > 50 ? convictedCasesData.sourceUrl.substring(0, 47) + '...' : convictedCasesData.sourceUrl}
+                              </a>
+                            );
+                          } else {
+                            return <span style={{ color: '#9ca3af' }}>MyNeta Enhanced Data</span>;
+                          }
+                        })()}
+                      </td>
+                    </tr>
                     
                     {/* Political Background */}
                     {renderSectionHeader('Political Background')}
-                    {renderTableRow('Dynasty Status', getField(completeData.dynastyStatus, 'Dynasty Status'), getSource(completeData.dynastyStatus, 'Dynasty Status'))}
-                    {renderTableRow('Career Highlight', analysis.familyWealth, null)}
+                    {(() => {
+                      const dynastyStatusData = getFieldWithSource('dynastyStatus', official.dynastyStatus);
+                      return renderTableRow('Dynasty Status', dynastyStatusData.value, dynastyStatusData.sourceUrl);
+                    })()}
+                    {(() => {
+                      const tenureData = getFieldWithSource('tenure', official.tenure);
+                      return renderTableRow('Tenure', tenureData.value, tenureData.sourceUrl);
+                    })()}
+                    {official.consistent_winner !== null && renderTableRow('Consistent Winner', official.consistent_winner ? 'Yes' : 'No', 'Database')}
+                    {renderTableRow('Career Highlight', official.family_wealth || 'N/A', 'MyNeta Database')}
                     
                     {/* Political Relations */}
                     {renderSectionHeader('👨‍👩‍👧‍👦 Political Relations & Family in Politics')}
@@ -268,15 +359,78 @@ const ProfilePage = () => {
                     ) : (
                       <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                         <td style={{ padding: '0.75rem', fontWeight: 600, fontSize: '0.875rem', color: '#374151' }}>Family Members in Politics</td>
-                        <td colSpan={2} style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#10b981', fontWeight: 600 }}>
+                        <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#10b981', fontWeight: 600 }}>
                           ✅ None identified - Self-made politician
+                        </td>
+                        <td style={{ padding: '0.75rem', fontSize: '0.75rem', color: '#3b82f6', verticalAlign: 'top' }}>
+                          {(() => {
+                            const politicalRelativesData = getFieldWithSource('politicalRelatives', official.politicalRelatives);
+                            if (politicalRelativesData.sourceUrl && politicalRelativesData.sourceUrl !== 'N/A' && politicalRelativesData.sourceUrl !== 'Database') {
+                              return (
+                                <a href={politicalRelativesData.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' }}>
+                                  {politicalRelativesData.sourceUrl.length > 50 ? politicalRelativesData.sourceUrl.substring(0, 47) + '...' : politicalRelativesData.sourceUrl}
+                                </a>
+                              );
+                            } else {
+                              return <span style={{ color: '#9ca3af' }}>MyNeta Analysis</span>;
+                            }
+                          })()}
                         </td>
                       </tr>
                     )}
                     
                     {/* Business Interests */}
                     {renderSectionHeader('Business Interests & Affiliated Companies')}
-                    {renderTableRow('Primary Company', getField(completeData.profession, 'Self Business and Social Worker Spouse Business'), getSource(completeData.profession, 'Self Business and Social Worker Spouse Business'))}
+                    
+                    {/* Business Interests - Enhanced field from database */}
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '0.75rem', fontWeight: 600, fontSize: '0.875rem', color: '#374151', verticalAlign: 'top' }}>Business Interests & Companies</td>
+                      <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280', verticalAlign: 'top' }}>
+                        {official.family_wealth ? (
+                          <div style={{ 
+                            padding: '0.75rem', 
+                            background: '#fef3c7', 
+                            borderRadius: '0.5rem',
+                            border: '1px solid #fcd34d',
+                            color: '#92400e',
+                            fontWeight: 500
+                          }}>
+                            🏢 {official.family_wealth}
+                          </div>
+                        ) : (
+                          <div style={{ 
+                            padding: '0.5rem', 
+                            background: '#d1fae5', 
+                            borderRadius: '0.375rem',
+                            border: '1px solid #86efac',
+                            color: '#059669',
+                            fontSize: '0.875rem',
+                            fontWeight: 600
+                          }}>
+                            ✅ No significant business interests identified
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ padding: '0.75rem', fontSize: '0.75rem', color: '#3b82f6', verticalAlign: 'top' }}>
+                        {(() => {
+                          const familyWealthData = getFieldWithSource('familyWealth', official.family_wealth);
+                          if (familyWealthData.sourceUrl && familyWealthData.sourceUrl !== 'N/A' && familyWealthData.sourceUrl !== 'Database') {
+                            return (
+                              <a href={familyWealthData.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' }}>
+                                {familyWealthData.sourceUrl.length > 50 ? familyWealthData.sourceUrl.substring(0, 47) + '...' : familyWealthData.sourceUrl}
+                              </a>
+                            );
+                          } else {
+                            return <span style={{ color: '#9ca3af' }}>MyNeta Analysis</span>;
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                    
+                    {/* Fallback to profession field if family_wealth not available */}
+                    {!official.family_wealth && (
+                      renderTableRow('Professional Background', 'Information not available', 'MyNeta Database')
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -305,13 +459,13 @@ const ProfilePage = () => {
                     {renderSectionHeader('Promises & Credibility (2024 Focus)')}
                     {renderTableRow(
                       'Key Promises',
-                      getField(completeData.keyPromises, 'Key Promises'),
-                      myneta['Key Promises']?.sourceUrl || analysis.keyPromisesSourceUrl || null
+                      'Information not available',
+                      'Database'
                     )}
                     {renderTableRow(
                       'Current Activity',
-                      getField(completeData.currentFocus, 'Current Activity'),
-                      myneta['Current Activity']?.sourceUrl || analysis.currentFocusSourceUrl || null
+                      'Information not available',
+                      'Database'
                     )}
                   </tbody>
                 </table>

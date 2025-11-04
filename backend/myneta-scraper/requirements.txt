@@ -12,3 +12,10 @@ webdriver-manager>=4.0.0
 
 # Utilities
 python-dotenv>=1.0.0
+
+# Wikipedia integration for missing data
+wikipedia>=1.4.0
+
+# Wikidata integration for structured political data
+wikidata>=0.7.0
+SPARQLWrapper>=2.0.0

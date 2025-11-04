@@ -195,69 +195,83 @@ async function extractCompleteData(name, mynetaData, wikipediaData) {
   console.log(`\n📋 Extracting complete data with fallbacks...`);
   
   const data = {
-    education: null,
-    age: null,
-    party: null,
-    constituency: null,
-    assets: null,
-    liabilities: null,
-    criminalCases: null,
-    profession: null,
-    email: null,
-    phone: null
+    education: { value: null, source: null },
+    age: { value: null, source: null },
+    party: { value: null, source: null },
+    constituency: { value: null, source: null },
+    assets: { value: null, source: null },
+    liabilities: { value: null, source: null },
+    criminalCases: { value: null, source: null },
+    profession: { value: null, source: null },
+    email: { value: null, source: null },
+    phone: { value: null, source: null }
+  };
+  
+  // Helper function to extract field with source
+  const extractField = (field) => {
+    if (field?.value) {
+      return { value: field.value, source: field.sourceUrl || null };
+    }
+    return { value: field, source: mynetaData._source_url || null };
   };
   
   // 1. Try MyNeta first (most reliable)
-  data.education = mynetaData['Education']?.value || 
-                   mynetaData['Educational Qualification']?.value;
-  data.age = mynetaData['Age']?.value;
-  data.party = mynetaData['Party']?.value || 
-               mynetaData['Party Affiliation']?.value;
-  data.constituency = mynetaData['Constituency']?.value;
+  const educationField = mynetaData['Education'] || mynetaData['Educational Qualification'];
+  if (educationField) data.education = extractField(educationField);
+  
+  const ageField = mynetaData['Age'];
+  if (ageField) data.age = extractField(ageField);
+  
+  const partyField = mynetaData['Party'] || mynetaData['Party Affiliation'];
+  if (partyField) data.party = extractField(partyField);
+  
+  const constituencyField = mynetaData['Constituency'];
+  if (constituencyField) data.constituency = extractField(constituencyField);
   
   // Try multiple field names for Assets/Liabilities
-  data.assets = mynetaData['Total Assets']?.value || 
-                mynetaData['Assets:']?.value ||
-                mynetaData['Assets']?.value ||
-                mynetaData['Lok Sabha 2019']?.value ||  // Latest declaration
-                mynetaData['Loksabha 2014']?.value;
+  const assetsField = mynetaData['Total Assets'] || mynetaData['Assets:'] || mynetaData['Assets'] || mynetaData['Lok Sabha 2019'] || mynetaData['Loksabha 2014'];
+  if (assetsField) data.assets = extractField(assetsField);
                 
-  data.liabilities = mynetaData['Total Liabilities']?.value || 
-                     mynetaData['Liabilities:']?.value ||
-                     mynetaData['Liabilities']?.value ||
-                     mynetaData['Grand Total of Liabilities (as per affidavit)']?.value;
+  const liabilitiesField = mynetaData['Total Liabilities'] || mynetaData['Liabilities:'] || mynetaData['Liabilities'] || mynetaData['Grand Total of Liabilities (as per affidavit)'];
+  if (liabilitiesField) data.liabilities = extractField(liabilitiesField);
                      
-  data.criminalCases = mynetaData['Criminal Cases']?.value || 
-                       mynetaData['Total Cases']?.value;
-  data.profession = mynetaData['Profession']?.value;
-  data.email = mynetaData['Email']?.value || 
-               mynetaData['Email ID']?.value;
-  data.phone = mynetaData['Phone']?.value || 
-               mynetaData['Mobile']?.value;
+  const criminalCasesField = mynetaData['Criminal Cases'] || mynetaData['Total Cases'];
+  if (criminalCasesField) data.criminalCases = extractField(criminalCasesField);
+  
+  const professionField = mynetaData['Profession'];
+  if (professionField) data.profession = extractField(professionField);
+  
+  const emailField = mynetaData['Email'] || mynetaData['Email ID'];
+  if (emailField) data.email = extractField(emailField);
+  
+  const phoneField = mynetaData['Phone'] || mynetaData['Mobile'];
+  if (phoneField) data.phone = extractField(phoneField);
   
   console.log('   ✅ MyNeta data extracted');
   
   // 2. Fill missing data from Wikipedia infobox
   if (wikipediaData?.infobox) {
-    if (!data.age && wikipediaData.infobox['Born']) {
+    if (!data.age.value && wikipediaData.infobox['Born']) {
       const birthMatch = wikipediaData.infobox['Born'].match(/\(age (\d+)\)/);
-      if (birthMatch) data.age = birthMatch[1];
+      if (birthMatch) {
+        data.age = { value: birthMatch[1], source: wikipediaData._source_url || 'Wikipedia' };
+      }
     }
     
-    if (!data.party && wikipediaData.infobox['Political party']) {
-      data.party = wikipediaData.infobox['Political party'];
+    if (!data.party.value && wikipediaData.infobox['Political party']) {
+      data.party = { value: wikipediaData.infobox['Political party'], source: wikipediaData._source_url || 'Wikipedia' };
     }
     
-    if (!data.constituency && wikipediaData.infobox['Constituency']) {
-      data.constituency = wikipediaData.infobox['Constituency'];
+    if (!data.constituency.value && wikipediaData.infobox['Constituency']) {
+      data.constituency = { value: wikipediaData.infobox['Constituency'], source: wikipediaData._source_url || 'Wikipedia' };
     }
     
-    if (!data.education && wikipediaData.infobox['Education']) {
-      data.education = wikipediaData.infobox['Education'];
+    if (!data.education.value && wikipediaData.infobox['Education']) {
+      data.education = { value: wikipediaData.infobox['Education'], source: wikipediaData._source_url || 'Wikipedia' };
     }
     
-    if (!data.profession && wikipediaData.infobox['Occupation']) {
-      data.profession = wikipediaData.infobox['Occupation'];
+    if (!data.profession.value && wikipediaData.infobox['Occupation']) {
+      data.profession = { value: wikipediaData.infobox['Occupation'], source: wikipediaData._source_url || 'Wikipedia' };
     }
     
     console.log('   ✅ Wikipedia data merged');
@@ -265,34 +279,34 @@ async function extractCompleteData(name, mynetaData, wikipediaData) {
   
   // 3. For still-missing critical fields, use Google search via OpenAI
   const missingFields = [];
-  if (!data.age) missingFields.push('age');
-  if (!data.party) missingFields.push('party');
-  if (!data.constituency) missingFields.push('constituency');
-  if (!data.education) missingFields.push('education');
+  if (!data.age.value) missingFields.push('age');
+  if (!data.party.value) missingFields.push('party');
+  if (!data.constituency.value) missingFields.push('constituency');
+  if (!data.education.value) missingFields.push('education');
   
   if (missingFields.length > 0) {
     console.log(`   ⚠️  Still missing: ${missingFields.join(', ')}`);
     const googleData = await searchGoogleForMissingData(name, missingFields);
     
-    if (googleData.age) data.age = googleData.age;
-    if (googleData.party) data.party = googleData.party;
-    if (googleData.constituency) data.constituency = googleData.constituency;
-    if (googleData.education) data.education = googleData.education;
+    if (googleData.age) data.age = { value: googleData.age, source: 'Google Search' };
+    if (googleData.party) data.party = { value: googleData.party, source: 'Google Search' };
+    if (googleData.constituency) data.constituency = { value: googleData.constituency, source: 'Google Search' };
+    if (googleData.education) data.education = { value: googleData.education, source: 'Google Search' };
     
     console.log('   ✅ Google search data merged');
   }
   
   // 4. Set defaults for any still-missing fields
-  data.education = data.education || 'N/A';
-  data.age = data.age || 'N/A';
-  data.party = data.party || 'Independent';
-  data.constituency = data.constituency || 'N/A';
-  data.assets = data.assets || 'N/A';
-  data.liabilities = data.liabilities || 'N/A';
-  data.criminalCases = data.criminalCases || '0';
-  data.profession = data.profession || 'Politician';
-  data.email = data.email || 'N/A';
-  data.phone = data.phone || 'N/A';
+  if (!data.education.value) data.education = { value: 'N/A', source: null };
+  if (!data.age.value) data.age = { value: 'N/A', source: null };
+  if (!data.party.value) data.party = { value: 'Independent', source: null };
+  if (!data.constituency.value) data.constituency = { value: 'N/A', source: null };
+  if (!data.assets.value) data.assets = { value: 'N/A', source: null };
+  if (!data.liabilities.value) data.liabilities = { value: 'N/A', source: null };
+  if (!data.criminalCases.value) data.criminalCases = { value: '0', source: null };
+  if (!data.profession.value) data.profession = { value: 'Politician', source: null };
+  if (!data.email.value) data.email = { value: 'N/A', source: null };
+  if (!data.phone.value) data.phone = { value: 'N/A', source: null };
   
   console.log('   ✅ Complete data ready\n');
   
@@ -552,7 +566,7 @@ async function checkDatabaseStatus() {
 async function updateOfficial(name, mynetaUrl) {
   // NOTE: If you get 'value too long for type character varying(255)' errors,
   // update these columns in your officials table to TEXT:
-  // assets, liabilities, dynasty_status, political_relatives, profile_data, image_url, education, party, constituency
+  // assets, liabilities, dynasty_status, political_relatives, image_url, education, party, constituency
   console.log('\n' + '='.repeat(80));
   console.log(`🚀 ENRICHING: ${name}`);
   console.log('='.repeat(80));
@@ -620,14 +634,14 @@ async function updateOfficial(name, mynetaUrl) {
     const essentialFields = [
       'education', 'age', 'party', 'constituency', 'assets', 'liabilities', 'criminalCases', 'profession'
     ];
-    const missingFields = essentialFields.filter(f => !completeData[f] || completeData[f] === 'N/A');
+    const missingFields = essentialFields.filter(f => !completeData[f].value || completeData[f].value === 'N/A');
 
     let filledData = { ...completeData };
     if (missingFields.length > 0) {
       // Try Wikipedia infobox first
       if (wikipediaData?.infobox) {
         missingFields.forEach(field => {
-          if (!filledData[field] || filledData[field] === 'N/A') {
+          if (!filledData[field].value || filledData[field].value === 'N/A') {
             // Map Wikipedia infobox keys to our fields
             const wikiMap = {
               education: 'Education',
@@ -638,15 +652,15 @@ async function updateOfficial(name, mynetaUrl) {
             };
             const wikiKey = wikiMap[field];
             if (wikiKey && wikipediaData.infobox[wikiKey]) {
-              filledData[field] = wikipediaData.infobox[wikiKey];
+              filledData[field] = { value: wikipediaData.infobox[wikiKey], source: wikipediaData._source_url || 'Wikipedia' };
             }
           }
         });
       }
       // If still missing, use OpenAI to fill
-      const stillMissing = essentialFields.filter(f => !filledData[f] || filledData[f] === 'N/A');
+      const stillMissing = essentialFields.filter(f => !filledData[f].value || filledData[f].value === 'N/A');
       if (stillMissing.length > 0) {
-        const prompt = `Rewrite the following politician's profile in simple, clear language. Fill any missing fields if possible.\n\nName: ${name}\nEducation: ${filledData.education}\nAge: ${filledData.age}\nParty: ${filledData.party}\nConstituency: ${filledData.constituency}\nAssets: ${filledData.assets}\nLiabilities: ${filledData.liabilities}\nCriminal Cases: ${filledData.criminalCases}\nProfession: ${filledData.profession}\n\nReturn as JSON with keys: education, age, party, constituency, assets, liabilities, criminalCases, profession.`;
+        const prompt = `Rewrite the following politician's profile in simple, clear language. Fill any missing fields if possible.\n\nName: ${name}\nEducation: ${filledData.education.value}\nAge: ${filledData.age.value}\nParty: ${filledData.party.value}\nConstituency: ${filledData.constituency.value}\nAssets: ${filledData.assets.value}\nLiabilities: ${filledData.liabilities.value}\nCriminal Cases: ${filledData.criminalCases.value}\nProfession: ${filledData.profession.value}\n\nReturn as JSON with keys: education, age, party, constituency, assets, liabilities, criminalCases, profession.`;
         try {
           const completion = await openai.chat.completions.create({
             model: 'gpt-4o',
@@ -658,7 +672,12 @@ async function updateOfficial(name, mynetaUrl) {
             temperature: 0.2
           });
           const aiData = JSON.parse(completion.choices[0].message.content);
-          filledData = { ...filledData, ...aiData };
+          // Convert AI data to our structure
+          Object.keys(aiData).forEach(key => {
+            if (stillMissing.includes(key)) {
+              filledData[key] = { value: aiData[key], source: 'OpenAI Analysis' };
+            }
+          });
         } catch (error) {
           console.error('❌ OpenAI fill failed:', error.message);
         }
@@ -702,9 +721,9 @@ async function updateOfficial(name, mynetaUrl) {
 
     // Add consistentWinner, currentOffice, partyHistory, educationalStatus
     let consistentWinner = analysis.consistentWinner || '';
-    let currentOffice = completeData.position || '';
+    let currentOffice = completeData.position?.value || '';
     let partyHistory = '';
-    let educationalStatus = filledData.education || '';
+    let educationalStatus = filledData.education.value || '';
 
     // Try Wikipedia infobox for missing details
     if (!currentOffice && wikipediaData?.infobox?.['Office']) {
@@ -715,7 +734,7 @@ async function updateOfficial(name, mynetaUrl) {
     }
     // Use OpenAI to fill party history if possible
     try {
-      const partyPrompt = `List all political parties this politician has been affiliated with, in order, based on the following data.\n\nParty: ${filledData.party}\nWikipedia: ${wikipediaData?.extract || ''}`;
+      const partyPrompt = `List all political parties this politician has been affiliated with, in order, based on the following data.\n\nParty: ${filledData.party.value}\nWikipedia: ${wikipediaData?.extract || ''}`;
       const partyCompletion = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [
@@ -728,7 +747,7 @@ async function updateOfficial(name, mynetaUrl) {
       const partyData = JSON.parse(partyCompletion.choices[0].message.content);
       partyHistory = partyData.partyHistory || '';
     } catch (error) {
-      partyHistory = filledData.party || '';
+      partyHistory = filledData.party.value || '';
     }
 
     // Use OpenAI to fill consistent winner if missing
@@ -788,14 +807,14 @@ async function updateOfficial(name, mynetaUrl) {
 
     const enrichedProfileData = {
       name,
-      education: filledData.education,
-      age: filledData.age,
-      party: filledData.party,
-      constituency: filledData.constituency,
-      assets: filledData.assets,
-      liabilities: filledData.liabilities,
-      criminalCases: filledData.criminalCases,
-      profession: filledData.profession,
+      education: filledData.education.value,
+      age: filledData.age.value,
+      party: filledData.party.value,
+      constituency: filledData.constituency.value,
+      assets: filledData.assets.value,
+      liabilities: filledData.liabilities.value,
+      criminalCases: filledData.criminalCases.value,
+      profession: filledData.profession.value,
       imageUrl,
       dynastyStatus: familyResearch.dynastyStatus,
       familySummary: simpleFamilySummary,
@@ -819,45 +838,62 @@ async function updateOfficial(name, mynetaUrl) {
         constituency = $8,
         dynasty_status = $9,
         family_wealth = $10,
-        current_wealth = $11,
-        knowledgeful = $12,
-        consistent_winner = $13,
-        political_relatives = $14,
-           image_url = $15,
-        profile_data = $16,
-        profile_updated_at = CURRENT_TIMESTAMP,
+        knowledgeful = $11,
+        consistent_winner = $12,
+        political_relatives = $13,
+        image_url = $14,
+        -- Source URL fields
+        education_source = $15,
+        assets_source = $16,
+        liabilities_source = $17,
+        criminal_cases_source = $18,
+        age_source = $19,
+        party_source = $20,
+        constituency_source = $21,
+        dynasty_status_source = $22,
+        family_wealth_source = $23,
+        image_url_source = $24,
         updated_at = NOW()
       WHERE id = $1
     `, [
       officialId,
-      completeData.education,
-      completeData.assets,
-      completeData.liabilities,
-      completeData.criminalCases,
-      completeData.age,
-      completeData.party,
-      completeData.constituency,
+      completeData.education.value,
+      completeData.assets.value,
+      completeData.liabilities.value,
+      parseInt(completeData.criminalCases.value) || 0, // Ensure integer
+      completeData.age.value,
+      completeData.party.value,
+      completeData.constituency.value,
       familyResearch.dynastyStatus,
       analysis.familyWealth,
-      analysis.currentWealth,
       analysis.knowledgeable,
       analysis.consistentWinner,
       politicalRelativesText,
       imageUrl,
-      JSON.stringify(enrichedProfileData)
+      // Source URLs
+      completeData.education.source,
+      completeData.assets.source,
+      completeData.liabilities.source,
+      completeData.criminalCases.source,
+      completeData.age.source,
+      completeData.party.source,
+      completeData.constituency.source,
+      mynetaData._source_url || '',
+      mynetaData._source_url || '',
+      mynetaData._source_url || ''
     ]);
     
     console.log('\n✅ SUCCESS! Official enriched with multi-source data\n');
     console.log(`   👤 Name: ${name}`);
-    console.log(`   🎓 Education: ${completeData.education}`);
-    console.log(`   🎂 Age: ${completeData.age}`);
-    console.log(`   🎉 Party: ${completeData.party}`);
-    console.log(`   📍 Constituency: ${completeData.constituency}`);
-    console.log(`   💰 Assets: ${completeData.assets}`);
-    console.log(`   📊 Liabilities: ${completeData.liabilities}`);
-    console.log(`   ⚖️  Criminal Cases: ${completeData.criminalCases}`);
-    console.log(`   💼 Profession: ${completeData.profession}`);
-    console.log(`   📧 Email: ${completeData.email}`);
+    console.log(`   🎓 Education: ${completeData.education.value} [${completeData.education.source || 'Unknown'}]`);
+    console.log(`   🎂 Age: ${completeData.age.value} [${completeData.age.source || 'Unknown'}]`);
+    console.log(`   🎉 Party: ${completeData.party.value} [${completeData.party.source || 'Unknown'}]`);
+    console.log(`   📍 Constituency: ${completeData.constituency.value} [${completeData.constituency.source || 'Unknown'}]`);
+    console.log(`   💰 Assets: ${completeData.assets.value} [${completeData.assets.source || 'Unknown'}]`);
+    console.log(`   📊 Liabilities: ${completeData.liabilities.value} [${completeData.liabilities.source || 'Unknown'}]`);
+    console.log(`   ⚖️  Criminal Cases: ${completeData.criminalCases.value} [${completeData.criminalCases.source || 'Unknown'}]`);
+    console.log(`   💼 Profession: ${completeData.profession.value} [${completeData.profession.source || 'Unknown'}]`);
+    console.log(`   📧 Email: ${completeData.email.value} [${completeData.email.source || 'Unknown'}]`);
     console.log(`   👑 Dynasty: ${familyResearch.dynastyStatus}`);
     console.log(`   👨‍👩‍👧‍👦 Family Summary: ${familyResearch.familySummary}`);
     console.log(`   👨‍👩‍👧 Political Relatives (${familyResearch.politicalRelatives?.length || 0}):`);
