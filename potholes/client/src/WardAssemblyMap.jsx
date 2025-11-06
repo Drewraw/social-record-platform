@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import L from 'leaflet';
 
-const WARD_GEOJSON_URL = '/geojson/wards.assembly.geo.json';
+const WARD_GEOJSON_URL = '/geojson/wards_with_assembly_WGS84.geojson';
 
 const WardAssemblyMap = () => {
   useEffect(() => {
@@ -19,8 +19,9 @@ const WardAssemblyMap = () => {
           }),
           onEachFeature: (feature, layer) => {
             const wardName = feature.properties.ward_name || feature.properties.name;
-            const acName = feature.properties.assembly_constituency || feature.properties.AC_NAME;
-            layer.bindPopup(`<b>Ward:</b> ${wardName}<br/><b>Assembly:</b> ${acName}`);
+            const acName = feature.properties.assembly || feature.properties.AC_NAME;
+            const cityZone = feature.properties.city_zone || '';
+            layer.bindPopup(`<b>Ward:</b> ${wardName}<br/><b>Assembly:</b> ${acName}<br/><b>Zone:</b> ${cityZone}`);
           }
         }).addTo(map);
       });
