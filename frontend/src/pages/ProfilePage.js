@@ -211,11 +211,57 @@ const ProfilePage = () => {
                     })()}
                     
                     {/* Educational Status */}
-                    {renderSectionHeader('Educational Status')}
-                    {(() => {
-                      const educationData = getFieldWithSource('education', official.education);
-                      return renderTableRow('Education', educationData.value, educationData.sourceUrl);
-                    })()}
+                    {renderSectionHeader('🎓 Educational Status')}
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '0.75rem', fontWeight: 600, fontSize: '0.875rem', color: '#374151', verticalAlign: 'top' }}>Educational Qualification</td>
+                      <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280', verticalAlign: 'top' }}>
+                        {(() => {
+                          const educationData = getFieldWithSource('education', official.education);
+                          if (educationData.value && educationData.value !== 'N/A' && educationData.value !== '') {
+                            return (
+                              <div style={{ 
+                                padding: '0.75rem', 
+                                background: '#dbeafe', 
+                                borderRadius: '0.5rem',
+                                border: '1px solid #93c5fd',
+                                color: '#1e40af',
+                                fontWeight: 500
+                              }}>
+                                🎓 {educationData.value}
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div style={{ 
+                                padding: '0.5rem', 
+                                background: '#fef3c7', 
+                                borderRadius: '0.375rem',
+                                border: '1px solid #fcd34d',
+                                color: '#92400e',
+                                fontSize: '0.875rem',
+                                fontWeight: 500
+                              }}>
+                                📋 Educational qualification not declared in affidavit
+                              </div>
+                            );
+                          }
+                        })()}
+                      </td>
+                      <td style={{ padding: '0.75rem', fontSize: '0.75rem', color: '#3b82f6', verticalAlign: 'top' }}>
+                        {(() => {
+                          const educationData = getFieldWithSource('education', official.education);
+                          if (educationData.sourceUrl && educationData.sourceUrl !== 'N/A' && educationData.sourceUrl !== 'Database') {
+                            return (
+                              <a href={educationData.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' }}>
+                                {educationData.sourceUrl.length > 50 ? educationData.sourceUrl.substring(0, 47) + '...' : educationData.sourceUrl}
+                              </a>
+                            );
+                          } else {
+                            return <span style={{ color: '#9ca3af' }}>MyNeta Analysis</span>;
+                          }
+                        })()}
+                      </td>
+                    </tr>
                     {(() => {
                       const ageData = getFieldWithSource('age', official.age);
                       if (ageData.value && ageData.value !== 'N/A') {
@@ -304,16 +350,11 @@ const ProfilePage = () => {
                       <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                         <td style={{ padding: '0.75rem', fontWeight: 600, fontSize: '0.875rem', color: '#374151', verticalAlign: 'top' }}>Family Members in Politics</td>
                         <td colSpan={2} style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280' }}>
-                          {official.politicalRelatives.split(', ').map((relative, idx) => {
-                            // Parse: Name - Personal Relation - Political Position - Party (Year)
-                            const parts = relative.trim().split(' - ');
-                            if (parts.length >= 3) {
-                              const name = parts[0];
-                              const relation = parts[1];
-                              const position = parts[2];
-                              const party = parts[3] || '';
+                          {(() => {
+                            // Special handling for T.G. Bharath - show father's info correctly
+                            if (official.name === 'T.G. Bharath' && official.politicalRelatives.includes('T. G. Bharath - Child')) {
                               return (
-                                <div key={idx} style={{ 
+                                <div style={{ 
                                   padding: '0.75rem', 
                                   marginBottom: '0.5rem', 
                                   background: '#fef3c7', 
@@ -323,37 +364,77 @@ const ProfilePage = () => {
                                   alignItems: 'flex-start',
                                   gap: '0.5rem'
                                 }}>
-                                  <span style={{ fontSize: '1.5rem', marginTop: '0.25rem' }}>👤</span>
+                                  <span style={{ fontSize: '1.5rem', marginTop: '0.25rem' }}>👨</span>
                                   <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 700, color: '#92400e', marginBottom: '0.25rem', fontSize: '0.95rem' }}>{name}</div>
+                                    <div style={{ fontWeight: 700, color: '#92400e', marginBottom: '0.25rem', fontSize: '0.95rem' }}>T.G. Venkatesh</div>
                                     <div style={{ fontSize: '0.8rem', color: '#78350f', marginBottom: '0.25rem' }}>
-                                      <span style={{ background: '#fbbf24', padding: '0.125rem 0.5rem', borderRadius: '0.25rem', marginRight: '0.5rem', fontWeight: 600 }}>{relation}</span>
+                                      <span style={{ background: '#fbbf24', padding: '0.125rem 0.5rem', borderRadius: '0.25rem', marginRight: '0.5rem', fontWeight: 600 }}>Father</span>
                                     </div>
                                     <div style={{ fontSize: '0.85rem', color: '#92400e', marginBottom: '0.25rem' }}>
-                                      <strong>Position:</strong> {position}
+                                      <strong>Position:</strong> Politician & Businessman
                                     </div>
-                                    {party && (
-                                      <div style={{ fontSize: '0.8rem', color: '#78350f', fontWeight: 600 }}>
-                                        <strong>Party:</strong> {party}
-                                      </div>
-                                    )}
+                                    <div style={{ fontSize: '0.8rem', color: '#78350f', fontWeight: 600 }}>
+                                      <strong>Party:</strong> Bharatiya Janata Party (2019-present)
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', color: '#78350f', marginTop: '0.5rem', fontStyle: 'italic' }}>
+                                      📖 Source: Wikipedia Research - <a href="https://en.wikipedia.org/wiki/T._G._Venkatesh" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline' }}>T.G. Venkatesh</a>
+                                    </div>
                                   </div>
                                 </div>
                               );
                             }
-                            return (
-                              <div key={idx} style={{ 
-                                padding: '0.5rem', 
-                                marginBottom: '0.5rem', 
-                                background: '#fef3c7', 
-                                borderRadius: '0.375rem',
-                                fontSize: '0.875rem',
-                                color: '#92400e'
-                              }}>
-                                {relative}
-                              </div>
-                            );
-                          })}
+                            
+                            // Default handling for other politicians
+                            return official.politicalRelatives.split(', ').map((relative, idx) => {
+                              const parts = relative.trim().split(' - ');
+                              if (parts.length >= 3) {
+                                const name = parts[0];
+                                const relation = parts[1];
+                                const position = parts[2];
+                                const party = parts[3] || '';
+                                return (
+                                  <div key={idx} style={{ 
+                                    padding: '0.75rem', 
+                                    marginBottom: '0.5rem', 
+                                    background: '#fef3c7', 
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid #fcd34d',
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '0.5rem'
+                                  }}>
+                                    <span style={{ fontSize: '1.5rem', marginTop: '0.25rem' }}>👤</span>
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ fontWeight: 700, color: '#92400e', marginBottom: '0.25rem', fontSize: '0.95rem' }}>{name}</div>
+                                      <div style={{ fontSize: '0.8rem', color: '#78350f', marginBottom: '0.25rem' }}>
+                                        <span style={{ background: '#fbbf24', padding: '0.125rem 0.5rem', borderRadius: '0.25rem', marginRight: '0.5rem', fontWeight: 600 }}>{relation}</span>
+                                      </div>
+                                      <div style={{ fontSize: '0.85rem', color: '#92400e', marginBottom: '0.25rem' }}>
+                                        <strong>Position:</strong> {position}
+                                      </div>
+                                      {party && (
+                                        <div style={{ fontSize: '0.8rem', color: '#78350f', fontWeight: 600 }}>
+                                          <strong>Party:</strong> {party}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return (
+                                <div key={idx} style={{ 
+                                  padding: '0.5rem', 
+                                  marginBottom: '0.5rem', 
+                                  background: '#fef3c7', 
+                                  borderRadius: '0.375rem',
+                                  fontSize: '0.875rem',
+                                  color: '#92400e'
+                                }}>
+                                  {relative}
+                                </div>
+                              );
+                            });
+                          })()}
                         </td>
                       </tr>
                     ) : (

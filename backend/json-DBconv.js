@@ -39,6 +39,7 @@ function extractFieldWithMultiSource(jsonData, ...fieldNames) {
   
   for (const field of fieldNames) {
     if (jsonData[field]) {
+      console.log(`   🔎 Checking field "${field}":`, jsonData[field]);
       let fieldData = null;
       
       if (typeof jsonData[field] === 'object' && jsonData[field].value) {
@@ -46,11 +47,15 @@ function extractFieldWithMultiSource(jsonData, ...fieldNames) {
           value: jsonData[field].value,
           source: jsonData[field].sourceUrl || jsonData._source_url || ''
         };
+        console.log(`   ✅ Extracted from object:`, fieldData);
       } else if (typeof jsonData[field] === 'string') {
         fieldData = {
           value: jsonData[field],
           source: jsonData._source_url || ''
         };
+        console.log(`   ✅ Extracted from string:`, fieldData);
+      } else {
+        console.log(`   ❌ Field type not handled:`, typeof jsonData[field]);
       }
       
       if (fieldData && fieldData.value) {
@@ -58,15 +63,20 @@ function extractFieldWithMultiSource(jsonData, ...fieldNames) {
         let priority = 0;
         if (fieldData.source.includes('myneta.info')) {
           priority = 3; // Highest priority
-        } else if (fieldData.source.includes('wikidata.org')) {
-          priority = 2; // Medium priority
-        } else if (fieldData.source.includes('wikipedia.org')) {
+        } else if (fieldData.source.includes('wikidata') || fieldData.source.includes('multi-source-analysis')) {
+          priority = 2; // Medium priority - includes hybrid analysis
+        } else if (fieldData.source.includes('wikipedia')) {
           priority = 1; // Lower priority
+        } else if (fieldData.value) {
+          priority = 1; // Default priority for any valid data
         }
         
+        console.log(`   📊 Priority assigned: ${priority} (source: ${fieldData.source})`);
+        
         // Keep the highest priority match
-        if (priority > bestMatch.priority) {
+        if (priority >= bestMatch.priority) {  // Changed > to >= to handle equal priorities
           bestMatch = { ...fieldData, priority };
+          console.log(`   🏆 New best match:`, bestMatch);
         }
       }
     }
@@ -217,6 +227,27 @@ function extractCriminalCases(jsonData) {
     return count;
   }
   
+  // Enhanced detection: Count numbered criminal case entries even without "Criminal Cases" header
+  // This handles cases where criminal cases are listed as numbered fields (1, 2, 3, etc.)
+  let count = 0;
+  for (let i = 1; i <= 50; i++) { // Check up to 50 cases
+    if (jsonData[i.toString()] && jsonData[i.toString()].value) {
+      // Check if it contains criminal case indicators
+      const caseText = jsonData[i.toString()].value.toLowerCase();
+      if (caseText.includes('police station') || caseText.includes('fir') || 
+          caseText.includes('crime') || caseText.includes('court') || 
+          caseText.includes('complaint') || caseText.includes('case no')) {
+        count++;
+        console.log(`   ✅ Found case ${i}: ${jsonData[i.toString()].value.substring(0, 50)}...`);
+      }
+    }
+  }
+  
+  if (count > 0) {
+    console.log(`✅ Counted ${count} numbered criminal cases`);
+    return count;
+  }
+  
   console.log('❌ No criminal cases found, returning 0');
   return 0; // Default to 0 if no cases found
 }
@@ -283,13 +314,17 @@ function mapJsonToDatabase(jsonData) {
   );
   
   // Extract dynasty and political relatives with multi-source support
+  console.log('🔍 Dynasty Debug - Available fields:', Object.keys(jsonData).filter(k => k.includes('dynasty') || k.includes('Dynasty')));
   const dynastyData = extractFieldWithMultiSource(jsonData,
     'dynasty_status', 'Dynasty Status', 'Political Family', 'Family Background'
   );
+  console.log('🔍 Dynasty extracted:', dynastyData);
   
+  console.log('🔍 Relatives Debug - Available fields:', Object.keys(jsonData).filter(k => k.includes('relatives') || k.includes('Relatives')));
   const relativesData = extractFieldWithMultiSource(jsonData,
     'political_relatives', 'Political Relatives', 'Family Members'
   );
+  console.log('🔍 Relatives extracted:', relativesData);
   
   // Extract tenure data 
   const tenureData = extractFieldWithMultiSource(jsonData,
@@ -298,7 +333,7 @@ function mapJsonToDatabase(jsonData) {
   
   // Extract image URL
   const imageData = extractFieldWithMultiSource(jsonData,
-    'image_url', 'Image URL', 'Photo URL', 'Picture', 'Image', 'Wikipedia Image'
+    'image_url', 'Image URL', 'Photo URL', 'Picture', 'Image', 'Wikipedia Image', 'profile_image_myneta'
   );
   
   // Extract profession/business interests

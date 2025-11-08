@@ -19,7 +19,7 @@ const compareRoutes = require('./routes/compare');
 const forumRoutes = require('./routes/forum');
 const aggregateRoutes = require('./routes/aggregate');
 const donationsRoutes = require('./routes/donations');
-const ragRoutes = require('./routes/rag');
+const ragRoutes = require('./routes/ragRoutes');
 
 app.use('/api/officials', officialsRoutes);
 app.use('/api/promises', promisesRoutes);

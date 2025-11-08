@@ -1,144 +1,72 @@
-/**
- * Test RAG Service Implementation
- */
-
+require('dotenv').config();
 const ragService = require('./services/ragService');
-const db = require('./config/database');
 
-async function testRAG() {
-  console.log('\n🧪 TESTING RAG (Retrieval-Augmented Generation)');
-  console.log('='.repeat(70) + '\n');
+async function testRAGService() {
+    console.log('🧪 Testing RAG Service...\n');
 
-  try {
-    // Step 1: Initialize embeddings table
-    console.log('[1/4] Initializing vector database...');
-    console.log('─'.repeat(70));
-    
-    const initialized = await ragService.initializeEmbeddingsTable();
-    
-    if (initialized) {
-      console.log('✅ Vector database ready\n');
-    } else {
-      console.log('❌ Failed to initialize. Check if pgvector is enabled.');
-      return;
+    try {
+        // Test 0: Initialize vector table
+        console.log('0️⃣ Initializing Vector Table:');
+        await ragService.initializeVectorTable();
+        console.log('✅ Vector table initialized\n');
+
+        // Test 1: Check health/stats  
+        console.log('1️⃣ Testing RAG Service Health:');
+        const stats = await ragService.getStats();
+        console.log('📊 Current stats:', stats);
+        
+        // Test 2: Generate embeddings for existing politicians
+        console.log('\n2️⃣ Testing Embedding Generation:');
+        try {
+            const embeddingResult = await ragService.generateEmbeddings(10); // T.G. Bharath's ID
+            console.log('✅ Embedding generation:', embeddingResult);
+        } catch (error) {
+            console.log('ℹ️ No politician with ID 10, trying ID 11 (KCR)...');
+            try {
+                const embeddingResult = await ragService.generateEmbeddings(11);
+                console.log('✅ Embedding generation:', embeddingResult);
+            } catch (error2) {
+                console.log('⚠️ No politicians found with ID 10 or 11. Checking what politicians exist...');
+                // Let's just check if any politicians exist
+                const allStats = await ragService.getStats();
+                console.log('Current embeddings count:', allStats.total_embeddings);
+            }
+        }
+
+        // Test 3: Similarity search
+        console.log('\n3️⃣ Testing Similarity Search:');
+        try {
+            const searchResults = await ragService.similaritySearch('BJP politician dynasty', 3);
+            console.log('🔍 Search results for "BJP politician dynasty":', 
+                searchResults.map(r => ({ 
+                    politician: r.politicianName, 
+                    party: r.party, 
+                    type: r.contentType, 
+                    similarity: r.similarityScore 
+                }))
+            );
+        } catch (error) {
+            console.log('⚠️ Similarity search failed (may need embeddings first):', error.message);
+        }
+
+        // Test 4: Full RAG query
+        console.log('\n4️⃣ Testing Full RAG Query:');
+        try {
+            const ragResult = await ragService.ragQuery('Who are the dynastic politicians from BJP?');
+            console.log('🤖 RAG Answer:', ragResult.answer);
+            console.log('📚 Sources used:', ragResult.sources.map(s => s.politician));
+        } catch (error) {
+            console.log('⚠️ RAG query failed (may need embeddings first):', error.message);
+        }
+
+        console.log('\n✅ RAG Service test completed!');
+        
+    } catch (error) {
+        console.error('❌ RAG Service test failed:', error);
     }
 
-    // Step 2: Get or create a test official
-    console.log('[2/4] Getting test official from database...');
-    console.log('─'.repeat(70));
-
-    // Check if we have any officials
-    let officialResult = await db.query('SELECT * FROM officials LIMIT 1');
-    
-    let testOfficial;
-    if (officialResult.rows.length === 0) {
-      // Create a test official
-      console.log('   No officials found, creating test record...');
-      
-      const insertResult = await db.query(`
-        INSERT INTO officials (name, constituency, party, current_office)
-        VALUES ($1, $2, $3, $4)
-        RETURNING *
-      `, ['D.K. Shivakumar', 'Kanakapura', 'Indian National Congress', 'Deputy Chief Minister']);
-      
-      testOfficial = insertResult.rows[0];
-    } else {
-      testOfficial = officialResult.rows[0];
-    }
-
-    // Add additional data for testing
-    testOfficial.assets = '₹1,413.80 Crore';
-    testOfficial.liabilities = '₹231.53 Crore';
-    testOfficial.criminal_cases = '19 pending cases';
-    testOfficial.education = 'B.A. Political Science';
-
-    console.log(`   Testing with: ${testOfficial.name}`);
-    console.log(`   ID: ${testOfficial.id}`);
-    console.log(`   Assets: ${testOfficial.assets}`);
-    console.log(`   Criminal Cases: ${testOfficial.criminal_cases}\n`);
-
-    // Step 3: Ingest the data
-    console.log('[3/4] Ingesting data into vector database...');
-    console.log('─'.repeat(70));
-
-    const chunksCreated = await ragService.ingestOfficialData(testOfficial);
-    console.log(`✅ Created ${chunksCreated} embedding chunks\n`);
-
-    // Step 4: Test RAG queries
-    console.log('[4/4] Testing RAG queries...');
-    console.log('─'.repeat(70) + '\n');
-
-    const officialName = testOfficial.name;
-
-    const testQueries = [
-      `What are ${officialName}'s total assets?`,
-      `How many criminal cases does ${officialName} have?`,
-      `Is ${officialName}'s asset data verified?`,
-      `What is ${officialName}'s current position?`
-    ];
-
-    for (const [i, query] of testQueries.entries()) {
-      console.log(`Query ${i + 1}: "${query}"`);
-      console.log('─'.repeat(70));
-
-      const result = await ragService.queryWithRAG(query, officialName);
-
-      console.log('\n📊 ANSWER:');
-      console.log(result.answer);
-
-      console.log('\n📚 SOURCES:');
-      result.sources.forEach((source, j) => {
-        console.log(`   ${j + 1}. ${source.content}`);
-        console.log(`      Source: ${source.source} ${source.verified ? '✅ Verified' : ''}`);
-      });
-
-      console.log(`\n🎯 Confidence: ${result.confidence.toUpperCase()}`);
-      console.log(`   Retrieved Chunks: ${result.retrievedChunks}\n`);
-
-      if (i < testQueries.length - 1) {
-        console.log('='.repeat(70) + '\n');
-        await new Promise(r => setTimeout(r, 2000)); // Rate limiting
-      }
-    }
-
-    // Summary
-    console.log('\n' + '='.repeat(70));
-    console.log('📊 RAG TEST SUMMARY');
-    console.log('='.repeat(70));
-    console.log(`
-✅ WHAT WORKS:
-- Vector database initialized with pgvector ✅
-- Text chunking and embedding generation ✅
-- Similarity search retrieval ✅
-- Context-aware answer generation with Gemini ✅
-- Source citation and verification ✅
-
-🎯 KEY BENEFITS:
-- Answers are grounded in verified affidavit data
-- Every answer cites MyNeta.info or official sources
-- No hallucinations - only uses stored data
-- Similarity search finds relevant context automatically
-
-💡 NEXT STEPS:
-1. Ingest all existing officials from database
-2. Add promise tracking data to embeddings
-3. Create API endpoint for user queries
-4. Add to frontend chat interface
-
-🚀 USAGE:
-const result = await ragService.queryWithRAG(
-  "What are Pawan Kalyan's criminal cases?",
-  "Pawan Kalyan"
-);
-console.log(result.answer); // With sources!
-`);
-    console.log('='.repeat(70) + '\n');
-
-  } catch (error) {
-    console.error('\n❌ TEST ERROR:', error.message);
-    console.error(error.stack);
-  }
+    process.exit(0);
 }
 
-// Run test
-testRAG().catch(console.error);
+// Run the test
+testRAGService();

@@ -5,7 +5,7 @@
   "scripts": {
     "install-all": "cd backend && npm install && cd ../frontend && npm install",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd backend && npm run dev",
+    "server": "cd backend && node server.js",
     "client": "cd frontend && npm start",
     "start": "npm run dev"
   },
@@ -20,6 +20,18 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
-    "node-fetch": "^3.3.2"
+    "@langchain/community": "^1.0.0",
+    "@langchain/core": "^1.0.3",
+    "@langchain/google-genai": "^1.0.0",
+    "@langchain/openai": "^1.0.0",
+    "axios": "^1.13.2",
+    "body-parser": "^2.2.0",
+    "cheerio": "^1.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
+    "openai": "^6.8.1",
+    "pg": "^8.16.3"
   }
 }
