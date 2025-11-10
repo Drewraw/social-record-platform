@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, TrendingUp, Shield, DollarSign, Users } from 'lucide-react';
+import { ragAPI } from '../services/api';
 
 const QAChat = () => {
   const [messages, setMessages] = useState([
@@ -34,32 +35,29 @@ const QAChat = () => {
     setIsLoading(true);
 
     try {
-      // Call RAG API
-      const response = await fetch('http://localhost:5001/api/rag/query', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          question: userMessage.content,
-          officialName: null // Let RAG search across all officials
-        }),
-      });
+      // Call RAG API using centralized service
+      const response = await ragAPI.query(userMessage.content);
+      const data = response.data;
 
-      const data = await response.json();
+      // Transform sources to match frontend expectations
+      const transformedSources = (data.sources || []).map(source => ({
+        content: `${source.politician} (${source.party}) - ${source.contentType}`,
+        verified: true, // All RAG sources are from verified data
+        source: `Similarity: ${source.similarity}`
+      }));
 
       const assistantMessage = {
         type: 'assistant',
-        content: data.answer || "I couldn't find relevant information. Please try rephrasing your question.",
-        sources: data.sources || [],
-        confidence: data.confidence || 'low',
+        content: data.data?.answer || data.answer || "I couldn't find relevant information. Please try rephrasing your question.",
+        sources: transformedSources,
+        confidence: data.confidence || 'medium', // Default to medium if not provided
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error querying RAG:', error);
-      
+
       const errorMessage = {
         type: 'assistant',
         content: "⚠️ Sorry, I encountered an error. Please make sure the backend server is running and try again.",

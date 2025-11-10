@@ -37,3 +37,13 @@ export const forumAPI = {
   create: (data) => axios.post(`${API_URL}/forum`, data),
   likeComment: (id) => axios.put(`${API_URL}/forum/${id}/like`),
 };
+
+// RAG API
+export const ragAPI = {
+  query: (question) => axios.post(`${API_URL}/rag/query`, { question }),
+  search: (query, limit = 5) => axios.post(`${API_URL}/rag/search`, { query, limit }),
+  generateEmbeddings: (politicianId) => axios.post(`${API_URL}/rag/embeddings/${politicianId}`),
+  generateAllEmbeddings: () => axios.post(`${API_URL}/rag/embeddings/generate/all`),
+  getStats: () => axios.get(`${API_URL}/rag/stats`),
+  health: () => axios.get(`${API_URL}/rag/health`),
+};
